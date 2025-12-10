@@ -1,0 +1,27 @@
+# Debug files
+attendance_selenium_debug.html
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Credentials (if you create a config file)
+config.ini
+credentials.json
+.env
