@@ -90,6 +90,7 @@ Instead of navigating to the folder every time, set up a global command.
 #### Prerequisites
 
   * Download and install **[SwiftBar](https://swiftbar.app)** (Open Source).
+  * or else ``` brew install swiftbar```
 
 #### Setup Guide
 
