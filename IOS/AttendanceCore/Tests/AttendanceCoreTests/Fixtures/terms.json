@@ -1,0 +1,20 @@
+[
+  {
+    "semesterId": 6,
+    "terms2Name": "VI",
+    "teachingStartDate": "Jan 19, 2026",
+    "teachingEndDate": "Jun 12, 2026",
+    "subjectwiseStudentIds": "1,2",
+    "subejctwiseBatchIds": "10,11",
+    "batchsemesterCapacity": 1456
+  },
+  {
+    "semesterId": 5,
+    "terms2Name": "V",
+    "teachingStartDate": "Jul 1, 2025",
+    "teachingEndDate": "Dec 1, 2025",
+    "subjectwiseStudentIds": "3,4",
+    "subejctwiseBatchIds": "12,13",
+    "batchsemesterCapacity": 1200
+  }
+]

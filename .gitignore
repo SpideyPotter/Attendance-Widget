@@ -25,3 +25,22 @@ ENV/
 config.ini
 credentials.json
 .env
+
+# Scratch
+Untitled
+
+# iOS / Xcode
+IOS/**/.build/
+IOS/**/DerivedData/
+IOS/**/xcuserdata/
+IOS/**/.swiftpm/xcode/xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Android (not ready to publish yet)
+Android/

@@ -1,0 +1,389 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7AFE0354E4614327B22386D6 /* BmuAttendanceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB1D118931847228240AF79 /* BmuAttendanceApp.swift */; };
+		D1E2F3A4B5C64789A0B1C2D3 /* AppRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D64789A0B1C2D4 /* AppRootView.swift */; };
+		D2E3F4A5B6C74890A1B2C3D4 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F3A4B5C6D74890A1B2C3D5 /* LoginView.swift */; };
+		D3E4F5A6B7C84901A2B3C4D5 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F4A5B6C7D84901A2B3C4D6 /* HomeView.swift */; };
+		D4E5F6A7B8C95012A3B4C5D6 /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F5A6B7C8D95012A3B4C5D7 /* AccountView.swift */; };
+		F5A6B7C8D9E06123A4B5C6D7 /* LabelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F6A7B8C9D06123A4B5C6D8 /* LabelsView.swift */; };
+		F6A7B8C9D0E17234A5B6C7D8 /* LabelsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6F7A8B9C0D17234A5B6C7D9 /* LabelsViewModel.swift */; };
+		FB78BC215EAB42C6BB5FA2F5 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5BA36F63574E6DA4E7A12E /* SettingsViewModel.swift */; };
+		4BDE7CF8F52C4EFCB6DE5A6E /* BackgroundRefreshScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A1F47753D4450FAA08A82F /* BackgroundRefreshScheduler.swift */; };
+		8D1B3C0B4CE047BCA3903430 /* AttendanceWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55416C533BE74F92A22D6F14 /* AttendanceWidget.swift */; };
+		AAE7515862844FF985A3E23B /* RefreshAttendanceIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955864FE096945998903C9DD /* RefreshAttendanceIntent.swift */; };
+		F2A5B4BAC810466495F293BA /* AttendanceWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 549A10D11A8048CDB29B53C0 /* AttendanceWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2112E175E2CA460FAED457D1 /* AttendanceCore in Frameworks */ = {isa = PBXBuildFile; productRef = C7CFE4D635734F658399F811 /* AttendanceCore */; };
+		68BE750E269B4840B95AB042 /* AttendanceCore in Frameworks */ = {isa = PBXBuildFile; productRef = C7CFE4D635734F658399F811 /* AttendanceCore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		09BCC79CAB194765A2AB37BB /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = FBCB66A10154481A8B92F867 /* Project object */; proxyType = 1; remoteGlobalIDString = A18FACE741BC41C7A88A507D; remoteInfo = AttendanceWidget; };
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		997D19A4AE3B40DAA31E5701 /* Embed Foundation Extensions */ = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = (
+				F2A5B4BAC810466495F293BA /* AttendanceWidget.appex in Embed Foundation Extensions */,
+			); name = "Embed Foundation Extensions"; runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		04A5F6F70906443E982261E9 /* BmuAttendance.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BmuAttendance.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		549A10D11A8048CDB29B53C0 /* AttendanceWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AttendanceWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBB1D118931847228240AF79 /* BmuAttendanceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BmuAttendanceApp.swift; sourceTree = "<group>"; };
+		E1F2A3B4C5D64789A0B1C2D4 /* AppRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
+		E2F3A4B5C6D74890A1B2C3D5 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		E3F4A5B6C7D84901A2B3C4D6 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		E4F5A6B7C8D95012A3B4C5D7 /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
+		E5F6A7B8C9D06123A4B5C6D8 /* LabelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelsView.swift; sourceTree = "<group>"; };
+		E6F7A8B9C0D17234A5B6C7D9 /* LabelsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelsViewModel.swift; sourceTree = "<group>"; };
+		FA5BA36F63574E6DA4E7A12E /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		B4A1F47753D4450FAA08A82F /* BackgroundRefreshScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundRefreshScheduler.swift; sourceTree = "<group>"; };
+		55416C533BE74F92A22D6F14 /* AttendanceWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceWidget.swift; sourceTree = "<group>"; };
+		955864FE096945998903C9DD /* RefreshAttendanceIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshAttendanceIntent.swift; sourceTree = "<group>"; };
+		6D5438AAD2FE48A59008F6CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		422F1DD84DE64C03BBD469B1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		651C6E9A5665481AA79821AB /* BmuAttendance.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BmuAttendance.entitlements; sourceTree = "<group>"; };
+		11F3B22987444DCC8E0AA7F1 /* AttendanceWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AttendanceWidget.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E9134706F9EC4996B0332A33 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
+				2112E175E2CA460FAED457D1 /* AttendanceCore in Frameworks */,
+			); runOnlyForDeploymentPostprocessing = 0; };
+		E90025C15C04402984CE5671 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
+				68BE750E269B4840B95AB042 /* AttendanceCore in Frameworks */,
+			); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1E761E184D04CA59F7BB4FD = {
+			isa = PBXGroup;
+			children = (
+				B90386954D5A4BB4BB8E05B3 /* BmuAttendance */,
+				2B788DE217C340409FE7F7B6 /* AttendanceWidget */,
+				E35A2E5D1C8C43F0A6E45B32 /* AttendanceCore */,
+				D3040ABA593E4671896E0E63 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D3040ABA593E4671896E0E63 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				04A5F6F70906443E982261E9 /* BmuAttendance.app */,
+				549A10D11A8048CDB29B53C0 /* AttendanceWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B90386954D5A4BB4BB8E05B3 /* BmuAttendance */ = {
+			isa = PBXGroup;
+			children = (
+				BBB1D118931847228240AF79 /* BmuAttendanceApp.swift */,
+				E1F2A3B4C5D64789A0B1C2D4 /* AppRootView.swift */,
+				E2F3A4B5C6D74890A1B2C3D5 /* LoginView.swift */,
+				E3F4A5B6C7D84901A2B3C4D6 /* HomeView.swift */,
+				E4F5A6B7C8D95012A3B4C5D7 /* AccountView.swift */,
+				E5F6A7B8C9D06123A4B5C6D8 /* LabelsView.swift */,
+				E6F7A8B9C0D17234A5B6C7D9 /* LabelsViewModel.swift */,
+				FA5BA36F63574E6DA4E7A12E /* SettingsViewModel.swift */,
+				B4A1F47753D4450FAA08A82F /* BackgroundRefreshScheduler.swift */,
+				6D5438AAD2FE48A59008F6CD /* Info.plist */,
+				651C6E9A5665481AA79821AB /* BmuAttendance.entitlements */,
+			);
+			path = BmuAttendance;
+			sourceTree = "<group>";
+		};
+		2B788DE217C340409FE7F7B6 /* AttendanceWidget */ = {
+			isa = PBXGroup;
+			children = (
+				55416C533BE74F92A22D6F14 /* AttendanceWidget.swift */,
+				955864FE096945998903C9DD /* RefreshAttendanceIntent.swift */,
+				422F1DD84DE64C03BBD469B1 /* Info.plist */,
+				11F3B22987444DCC8E0AA7F1 /* AttendanceWidget.entitlements */,
+			);
+			path = AttendanceWidget;
+			sourceTree = "<group>";
+		};
+		E35A2E5D1C8C43F0A6E45B32 /* AttendanceCore */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = AttendanceCore;
+			path = AttendanceCore;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DE2528185F9243E792866A31 /* BmuAttendance */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ADBD79363EE948E18E24A6CD /* Build configuration list for PBXNativeTarget "BmuAttendance" */;
+			buildPhases = (
+				A4509F9FC6144D9084293930 /* Sources */,
+				E9134706F9EC4996B0332A33 /* Frameworks */,
+				A334C07A35424F078E218BEA /* Resources */,
+				997D19A4AE3B40DAA31E5701 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				485130D65D174305BEF47EB6 /* PBXTargetDependency */,
+			);
+			name = BmuAttendance;
+			packageProductDependencies = (
+				C7CFE4D635734F658399F811 /* AttendanceCore */,
+			);
+			productName = BmuAttendance;
+			productReference = 04A5F6F70906443E982261E9 /* BmuAttendance.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A18FACE741BC41C7A88A507D /* AttendanceWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CBAF182301EA4B069D16A91A /* Build configuration list for PBXNativeTarget "AttendanceWidget" */;
+			buildPhases = (
+				B7ACA789851F42799314D08A /* Sources */,
+				E90025C15C04402984CE5671 /* Frameworks */,
+				B74232A1AFC84C6B9C0315AD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AttendanceWidget;
+			packageProductDependencies = (
+				C7CFE4D635734F658399F811 /* AttendanceCore */,
+			);
+			productName = AttendanceWidget;
+			productReference = 549A10D11A8048CDB29B53C0 /* AttendanceWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FBCB66A10154481A8B92F867 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+			};
+			buildConfigurationList = 00C3E92BDE4F4C1A97370279 /* Build configuration list for PBXProject "BmuAttendance" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = E1E761E184D04CA59F7BB4FD;
+			packageReferences = (
+				D5A5C2E872334FCE8EBB935C /* XCLocalSwiftPackageReference "AttendanceCore" */,
+			);
+			productRefGroup = D3040ABA593E4671896E0E63 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DE2528185F9243E792866A31 /* BmuAttendance */,
+				A18FACE741BC41C7A88A507D /* AttendanceWidget */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A334C07A35424F078E218BEA /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (
+			); runOnlyForDeploymentPostprocessing = 0; };
+		B74232A1AFC84C6B9C0315AD /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (
+			); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A4509F9FC6144D9084293930 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+				7AFE0354E4614327B22386D6 /* BmuAttendanceApp.swift in Sources */,
+				D1E2F3A4B5C64789A0B1C2D3 /* AppRootView.swift in Sources */,
+				D2E3F4A5B6C74890A1B2C3D4 /* LoginView.swift in Sources */,
+				D3E4F5A6B7C84901A2B3C4D5 /* HomeView.swift in Sources */,
+				D4E5F6A7B8C95012A3B4C5D6 /* AccountView.swift in Sources */,
+				F5A6B7C8D9E06123A4B5C6D7 /* LabelsView.swift in Sources */,
+				F6A7B8C9D0E17234A5B6C7D8 /* LabelsViewModel.swift in Sources */,
+				FB78BC215EAB42C6BB5FA2F5 /* SettingsViewModel.swift in Sources */,
+				4BDE7CF8F52C4EFCB6DE5A6E /* BackgroundRefreshScheduler.swift in Sources */,
+			); runOnlyForDeploymentPostprocessing = 0; };
+		B7ACA789851F42799314D08A /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+				8D1B3C0B4CE047BCA3903430 /* AttendanceWidget.swift in Sources */,
+				AAE7515862844FF985A3E23B /* RefreshAttendanceIntent.swift in Sources */,
+			); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		485130D65D174305BEF47EB6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A18FACE741BC41C7A88A507D /* AttendanceWidget */;
+			targetProxy = 09BCC79CAB194765A2AB37BB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		D5A5C2E872334FCE8EBB935C /* XCLocalSwiftPackageReference "AttendanceCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = AttendanceCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C7CFE4D635734F658399F811 /* AttendanceCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5A5C2E872334FCE8EBB935C /* XCLocalSwiftPackageReference "AttendanceCore" */;
+			productName = AttendanceCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AA1111111111111111111111 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AA2222222222222222222222 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		BB1111111111111111111111 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BmuAttendance/BmuAttendance.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BmuAttendance/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.bmu.attendance;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BB2222222222222222222222 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BmuAttendance/BmuAttendance.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BmuAttendance/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.bmu.attendance;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		CC1111111111111111111111 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = AttendanceWidget/AttendanceWidget.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AttendanceWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.bmu.attendance.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC2222222222222222222222 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = AttendanceWidget/AttendanceWidget.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AttendanceWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.bmu.attendance.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		00C3E92BDE4F4C1A97370279 /* Build configuration list for PBXProject "BmuAttendance" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA1111111111111111111111 /* Debug */,
+				AA2222222222222222222222 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ADBD79363EE948E18E24A6CD /* Build configuration list for PBXNativeTarget "BmuAttendance" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB1111111111111111111111 /* Debug */,
+				BB2222222222222222222222 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CBAF182301EA4B069D16A91A /* Build configuration list for PBXNativeTarget "AttendanceWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC1111111111111111111111 /* Debug */,
+				CC2222222222222222222222 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FBCB66A10154481A8B92F867 /* Project object */;
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "subjectCode": "CSE3727",
+    "subject": "Artificial Intelligence in Electric Mobility",
+    "presentCount": 18,
+    "absentCount": 2,
+    "afterCapping": 0,
+    "subjectCategory": "THEORY"
+  },
+  {
+    "subjectCode": "CSE3999",
+    "subject": "Project-III",
+    "presentCount": 0,
+    "absentCount": 0,
+    "afterCapping": 0,
+    "subjectCategory": "PROJECT"
+  }
+]
