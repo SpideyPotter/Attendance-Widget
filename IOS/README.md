@@ -23,7 +23,7 @@ The Maitri HTTP contract lives in [`../Android/FLOW.md`](../Android/FLOW.md). Va
 
 ## Mac without Xcode
 
-Download the latest unsigned Mac build from [GitHub Releases](https://github.com/SpideyPotter/Attendance-Widget/releases). See the root [README](../README.md) for install notes.
+Download the latest Mac build from [GitHub Releases](https://github.com/SpideyPotter/Attendance-Widget/releases). Those CI artifacts are unsigned. To package a signed build on your Mac, use `./scripts/package-macos-app.sh` after Xcode is signed in with your Apple ID. See the root [README](../README.md) for install notes.
 
 ## Command line
 
@@ -48,7 +48,9 @@ Open **Labels** from the home toolbar to choose short local abbreviations for ea
 
 ## Signing
 
-The app and widget extension need the App Group `group.edu.bmu.attendance` on your development team before the widget can read the shared snapshot.
+Sign in to Xcode with your Apple ID and select your personal team on the **BmuAttendance** and **AttendanceWidget** targets. The App Group `group.edu.bmu.attendance` must be enabled on both targets so the widget can read the shared snapshot.
+
+GitHub Actions builds stay unsigned because the workflow does not use your signing credentials.
 
 ## Maintainer packaging
 
