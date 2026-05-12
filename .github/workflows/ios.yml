@@ -1,0 +1,40 @@
+name: iOS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "IOS/**"
+      - ".github/workflows/ios.yml"
+  pull_request:
+    paths:
+      - "IOS/**"
+      - ".github/workflows/ios.yml"
+
+jobs:
+  attendance-core-tests:
+    name: AttendanceCore tests
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: IOS/AttendanceCore
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Swift package tests
+        run: swift test
+
+  xcode-build:
+    name: Xcode build
+    runs-on: macos-15
+    needs: attendance-core-tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build app and widget
+        run: |
+          xcodebuild \
+            -project IOS/BmuAttendance.xcodeproj \
+            -scheme BmuAttendance \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build
