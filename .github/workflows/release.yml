@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  macos-app:
+    name: macOS app zip
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build unsigned app for Apple Silicon Mac
+        run: |
+          xcodebuild \
+            -project IOS/BmuAttendance.xcodeproj \
+            -scheme BmuAttendance \
+            -configuration Release \
+            -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/DerivedData/Build/Products/Release-iphoneos/BmuAttendance.app \
+            build/BmuAttendance-macOS-apple-silicon.zip
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/BmuAttendance-macOS-apple-silicon.zip
+          generate_release_notes: true

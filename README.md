@@ -1,135 +1,53 @@
-# 🎓 BMU Attendance Tracker
+# BMU Attendance
 
-An  attendance widget for **BML Munjal University** students.
+Attendance for BML Munjal University students from the Maitri portal, with a home-screen widget and a native app for iPhone and Apple Silicon Mac.
 
-## 📋 Overview
+## What it does
 
-This project is a widget that lets you check your attendance straight from you desktop instead of going through the hassle of opening the browser and logging into the portal.
+- Fetches the current term from Maitri and shows overall attendance plus per-subject percentages.
+- Stores a cached snapshot on device so the widget and app can read the latest data without opening the portal.
+- Lets you set short local course labels that apply in the app and widget on that device only.
+- Refreshes on demand from the app or widget, with background refresh on a best-effort schedule.
+- Rate-limits network refresh to about once every ten minutes so repeated opens do not hammer the portal.
 
----
+## Platforms
 
-## 🛠️ Installation & Setup
+| Platform | Status | How to get it |
+| --- | --- | --- |
+| iPhone (iOS 17+) | Supported | Build from source in Xcode. See [IOS/README.md](IOS/README.md). |
+| Apple Silicon Mac | Supported | Download the latest **macOS (Apple Silicon)** `.zip` from [GitHub Releases](https://github.com/SpideyPotter/Attendance-Widget/releases). The app is the same iOS build running on Mac. |
+| Android | In progress | Not published in this repo yet. |
+| CLI and SwiftBar | Legacy | See [docs/legacy-cli-swiftbar.md](docs/legacy-cli-swiftbar.md). |
 
-### 1. Global Prerequisites
-You must have the following installed on your system before running any version:
+GitHub Releases ship an unsigned Mac app bundle for local install. iOS builds are not distributed as installable packages here because signing and App Group setup need your Apple developer team.
 
-* **Python 3.7+**
-* **Google Chrome** browser (standard installation).
-* **Required Python Libraries:**
-    ```bash
-    pip install selenium webdriver-manager colorama prettytable requests
-    ```
+## Mac install from a release
 
-### 2. Configure Credentials
-Open the script file you intend to use (e.g., `attendance.py` or `attendance.1h.py`) in a text editor and update the configuration section at the top:
+1. Download `BmuAttendance-macOS-apple-silicon.zip` from [Releases](https://github.com/SpideyPotter/Attendance-Widget/releases).
+2. Unzip and move `BmuAttendance.app` into Applications.
+3. On first open, macOS may block an unsigned app. Use **Open** from the context menu, or run `xattr -dr com.apple.quarantine /Applications/BmuAttendance.app`.
+4. Sign in with your full Maitri email, refresh attendance, then add the **BMU Attendance** widget from the widget gallery.
 
-```python
-# --- CONFIGURATION ---
-USERNAME = "your.email@bmu.edu.in"  # Your Maitri Username
-PASSWORD = "YourPassword123"        # Your Maitri Password
-# ---------------------
-````
+## iPhone install
 
------
+Open `IOS/BmuAttendance.xcodeproj` in Xcode, enable the App Group `group.edu.bmu.attendance` on the app and widget targets, run on your device, then add the widget. Details are in [IOS/README.md](IOS/README.md).
 
-## 🖥️ Platform Guides
+## Repository layout
 
-### 💻 A. CLI Version (Terminal)
+```text
+IOS/                 Native app, widget, and AttendanceCore package
+docs/                Legacy CLI and SwiftBar documentation
+MacOS/               SwiftBar plugin script
+attendance.py        Legacy terminal script
+.github/workflows/   CI and release automation
+```
 
-#### Setup
+## Development
 
-1.  Navigate to the project directory.
-2.  Run the script directly:
-    ```bash
-    python attendance.py
-    ```
+- Package tests: `cd IOS/AttendanceCore && swift test`
+- iOS CI runs on pushes and pull requests that touch `IOS/`
+- Tag a release as `v*` (for example `v1.0.0`) to build and upload the Mac app zip to GitHub Releases
 
-#### UNIX Users (macOS, Linux)
+## Author
 
-Instead of navigating to the folder every time, set up a global command.
-
-**For macOS/Linux (zsh or bash):**
-
-1.  Open your shell configuration file:
-    ```bash
-    nano ~/.zshrc   # or ~/.bashrc for Linux/older Mac
-    ```
-2.  Add this line to the bottom (replace path with your actual file path):
-    ```bash
-    alias attendance="python3 /Users/YOUR_NAME/Projects/Attendance/attendance.py"
-    ```
-3.  Save and reload:
-    ```bash
-    source ~/.zshrc
-    ```
-4.  **Usage:** Just type `attendance` in any terminal window.
-
-#### Windows Users
-
-1.  **Create a Batch File:**
-    Open Notepad and paste the following code:
-    ```batch
-    @echo off
-    REM Ensure 'python' is in your system's PATH, or use the full path to python.exe
-    python "C:\Users\YourName\Path\To\Attendance\attendance.py" %*
-    ```
-    *(Replace `C:\Users\YourName\Path\To\Attendance\attendance.py` with the actual, full path to your `attendance.py` script).*
-2.  **Save the File:**
-    Save the file as `attendance.bat` in a new, dedicated folder (e.g., `C:\Scripts`).
-3.  **Add to System PATH:**
-    *   Search for "Edit the system environment variables" in the Start Menu and open it.
-    *   Click the "Environment Variables..." button.
-    *   Under "User variables for [Your Username]", select the `Path` variable and click "Edit...".
-    *   Click "New" and add the path to your script folder (e.g., `C:\Scripts`).
-    *   Click "OK" on all open windows to save the changes.
-4.  **Usage:**
-    Open a **new** Command Prompt or PowerShell window and simply type `attendance`.
-
-###  B. macOS Menu Bar (SwiftBar)
-
-#### Prerequisites
-
-  * Download and install **[SwiftBar](https://swiftbar.app)** (Open Source).
-  * or else ``` brew install swiftbar```
-
-#### Setup Guide
-
-1.  **Locate the Plugin Folder:**
-    Open SwiftBar, click the "Open Plugin Folder..." option (or create a folder where you want your plugins to live).
-
-2.  **Install the Script:**
-    Copy the `attendance.1h.py` file into that Plugin Folder.
-
-      * *Note:* The `.1h.` in the filename tells SwiftBar to refresh this script every **1 hour**. You can change it to `.30m.` for 30 minutes if preferred.
-
-3.  **Permissions (Important):**
-    Ensure the script is executable:
-
-    ```bash
-    chmod +x /path/to/your/SwiftBarPlugins/attendance.1h.py
-    ```
-
-4.  **Python Path Fix (If it crashes):**
-    SwiftBar sometimes uses the system Python instead of your installed version. If the script fails, add the full path to your Python interpreter at the very top of the script (Shebang line):
-
-    ```python
-    #!/usr/local/bin/python3
-    # OR
-    #!/Users/yourname/.pyenv/shims/python
-    ```
-
-    *(Type `which python3` in your terminal to find your specific path).*
-
-#### Visual Preview
-
-The menu bar will show your **Overall %**. Clicking it reveals the dropdown:
-
-![Menu Bar Preview](MacOs/image.png)
-
-*(Example: Attendance breakdown with 'Red' alerts for low attendance subjects)*
-
------
-
-
-
-**Author:** [Kota Ravindra Reddy](https://github.com/yourusername)
+[Kota Ravindra Reddy](https://github.com/SpideyPotter)

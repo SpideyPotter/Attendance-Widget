@@ -44,3 +44,6 @@ IOS/**/.swiftpm/xcode/xcuserdata/
 
 # Android (not ready to publish yet)
 Android/
+
+# Local release artifacts
+build/
