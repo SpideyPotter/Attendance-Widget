@@ -4,6 +4,16 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag (e.g. v1.0.0)"
+        required: true
+        default: v1.0.0
+      android_only:
+        description: "Upload Android APK only (add to an existing release)"
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -11,6 +21,7 @@ permissions:
 jobs:
   macos-app:
     name: macOS app zip
+    if: github.event_name == 'push' || inputs.android_only == false
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -42,6 +53,9 @@ jobs:
         working-directory: Android/app
     steps:
       - uses: actions/checkout@v4
+        with:
+          # v1.0.0 predates Android in the repo; backfill builds from main.
+          ref: ${{ github.event_name == 'push' && github.ref || (inputs.android_only && 'main' || inputs.tag) }}
 
       - uses: actions/setup-java@v4
         with:
@@ -59,15 +73,18 @@ jobs:
         run: |
           APK=$(find app/build/outputs/apk/release -name '*.apk' | head -1)
           test -n "$APK"
-          cp "$APK" ../../build/BmuAttendance-android-release.apk
+          TAG="${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          VERSION="${TAG#v}"
+          cp "$APK" "../../build/BmuAttendance-android-${VERSION}.apk"
 
       - uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: build/BmuAttendance-android-release.apk
+          path: build/BmuAttendance-android-*.apk
 
   publish:
-    name: Publish GitHub release
+    name: Publish full release
+    if: github.event_name == 'push' || inputs.android_only == false
     runs-on: ubuntu-latest
     needs: [macos-app, android-apk]
     steps:
@@ -80,5 +97,23 @@ jobs:
         with:
           files: |
             dist/macos-app/BmuAttendance-macOS-apple-silicon.zip
-            dist/android-apk/BmuAttendance-android-release.apk
+            dist/android-apk/*
           generate_release_notes: true
+
+  publish-android-addon:
+    name: Attach APK to existing release
+    if: github.event_name == 'workflow_dispatch' && inputs.android_only == true
+    runs-on: ubuntu-latest
+    needs: [android-apk]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: dist
+
+      - name: Upload APK to ${{ inputs.tag }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          files: dist/*
+          generate_release_notes: false

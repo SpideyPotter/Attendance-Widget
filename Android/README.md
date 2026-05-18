@@ -95,7 +95,7 @@ export JAVA_HOME="/Volumes/APPS/Applications/Android Studio.app/Contents/jbr/Con
 ## CI and releases
 
 - **CI**: GitHub Actions workflow [`.github/workflows/android.yml`](../.github/workflows/android.yml) builds the probe and assembles debug + release on every push/PR that touches `Android/`.
-- **Releases**: Tag the repo as `v*` (for example `v0.2.0`). The [release workflow](../.github/workflows/release.yml) uploads an unsigned release APK alongside the Mac zip. Install via `adb install` or Android Studio; you may need to allow installs from unknown sources.
+- **Releases**: Tag the repo as `v*` (for example `v1.0.1`) to build both Mac zip and `BmuAttendance-android-1.0.1.apk`. Version in `app/build.gradle.kts` should match the tag (without the `v`). For an older release that only has the Mac zip, run **Actions → Release → Run workflow** with that tag and **android_only** enabled. Install the APK via `adb install` or Android Studio; you may need to allow installs from unknown sources.
 
 ## Troubleshooting
 
