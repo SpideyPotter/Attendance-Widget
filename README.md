@@ -16,7 +16,7 @@ Attendance for BML Munjal University students from the Maitri portal, with a hom
 | --- | --- | --- |
 | iPhone (iOS 17+) | Supported | Build from source in Xcode. See [IOS/README.md](IOS/README.md). |
 | Apple Silicon Mac | Supported | Download the latest **macOS (Apple Silicon)** `.zip` from [GitHub Releases](https://github.com/SpideyPotter/Attendance-Widget/releases). The app is the same iOS build running on Mac. |
-| Android | In progress | Not published in this repo yet. |
+| Android | Supported | Build from source in Android Studio. See [Android/README.md](Android/README.md). |
 | CLI and SwiftBar | Legacy | See [docs/legacy-cli-swiftbar.md](docs/legacy-cli-swiftbar.md). |
 
 GitHub Releases ship an unsigned Mac zip built in CI without your signing credentials. Builds from Xcode on your Mac can use your Apple ID personal team for local install on your devices. iOS is not distributed as an installable package here; build from source in Xcode.
@@ -38,6 +38,7 @@ Open `IOS/BmuAttendance.xcodeproj` in Xcode, enable the App Group `group.edu.bmu
 
 ```text
 IOS/                 Native app, widget, and AttendanceCore package
+Android/             Native app and home-screen widgets (Kotlin / Compose)
 docs/                Legacy CLI and SwiftBar documentation
 MacOS/               SwiftBar plugin script
 attendance.py        Legacy terminal script

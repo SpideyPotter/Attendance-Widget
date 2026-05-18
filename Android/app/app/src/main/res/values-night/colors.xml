@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Widget loading / picker preview (dark). -->
+    <color name="widget_background">#2D2D2D</color>
+    <color name="widget_on_surface_dim">#B3B3B3</color>
+    <color name="widget_preview_on_surface">#E2E2E5</color>
+    <color name="widget_preview_secondary">#8E9199</color>
+    <color name="widget_preview_divider">#44474E</color>
+    <color name="widget_status_red">#FFB4AB</color>
+    <color name="widget_status_yellow">#FF9F0A</color>
+    <color name="widget_status_green">#34C759</color>
+</resources>

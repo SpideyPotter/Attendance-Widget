@@ -42,8 +42,5 @@ IOS/**/.swiftpm/xcode/xcuserdata/
 *.dSYM.zip
 *.dSYM
 
-# Android (not ready to publish yet)
-Android/
-
 # Local release artifacts
 build/

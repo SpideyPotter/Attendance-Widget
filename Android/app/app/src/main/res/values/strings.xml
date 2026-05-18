@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BMU Attendance</string>
+    <string name="widget_name">Attendance</string>
+    <string name="widget_compact_name">Attendance Compact</string>
+    <string name="widget_description">Your latest Maitri attendance, on the home screen.</string>
+    <string name="widget_compact_description">A compact Maitri attendance summary.</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Maitri credentials</string>
+    <string name="settings_subtitle">Stored encrypted on this device. Used only to fetch your attendance.</string>
+    <string name="settings_username">Username (full email)</string>
+    <string name="settings_username_hint">you@bmu.edu.in</string>
+    <string name="settings_password">Password</string>
+    <string name="settings_save">Save and refresh</string>
+    <string name="settings_test">Test login</string>
+    <string name="settings_clear">Clear saved credentials</string>
+    <string name="settings_status_idle">Not yet tested.</string>
+    <string name="settings_status_testing">Testing…</string>
+    <string name="settings_status_ok">Login OK · %1$s · %2$d subjects · overall %3$.2f%%</string>
+    <string name="settings_status_failed">Login failed: %1$s</string>
+
+    <!-- Widget -->
+    <string name="widget_overall_label">Overall</string>
+    <string name="widget_no_credentials">Tap to set up Maitri credentials</string>
+    <string name="widget_loading">Loading…</string>
+    <string name="widget_last_updated">Updated %1$s</string>
+    <string name="widget_no_data">No attendance yet — tap to refresh</string>
+    <string name="widget_open_app">No attendance yet — tap to open app</string>
+    <string name="widget_refresh">Refresh</string>
+</resources>

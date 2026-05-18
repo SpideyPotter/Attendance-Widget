@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Block automatic backup of credentials and cached snapshots. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="bmu_credentials.xml" />
+        <exclude domain="sharedpref" path="bmu_snapshot.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="bmu_credentials.xml" />
+        <exclude domain="sharedpref" path="bmu_snapshot.xml" />
+    </device-transfer>
+</data-extraction-rules>

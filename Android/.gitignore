@@ -1,0 +1,22 @@
+# Gradle
+.gradle/
+.kotlin/
+build/
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+local.properties
+captures/
+
+# OS
+.DS_Store
+
+# Keystore — never commit signing material
+*.jks
+*.keystore
+keystore.properties
