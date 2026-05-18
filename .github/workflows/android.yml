@@ -1,0 +1,54 @@
+name: Android
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Android/**"
+      - ".github/workflows/android.yml"
+  pull_request:
+    paths:
+      - "Android/**"
+      - ".github/workflows/android.yml"
+
+jobs:
+  probe:
+    name: Maitri probe compile
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Android/probe
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Build probe
+        run: |
+          chmod +x gradlew
+          ./gradlew build --no-daemon
+
+  app:
+    name: Gradle assemble
+    runs-on: ubuntu-latest
+    needs: probe
+    defaults:
+      run:
+        working-directory: Android/app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Assemble debug and release
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug :app:assembleRelease --no-daemon

@@ -49,7 +49,8 @@ attendance.py        Legacy terminal script
 
 - Package tests: `cd IOS/AttendanceCore && swift test`
 - iOS CI runs on pushes and pull requests that touch `IOS/`
-- Tag a release as `v*` (for example `v1.0.0`) to build and upload the Mac app zip to GitHub Releases
+- Android CI runs on pushes and pull requests that touch `Android/` (probe compile + Gradle assemble)
+- Tag a release as `v*` (for example `v1.0.0`) to publish the unsigned Mac app zip and Android release APK to GitHub Releases
 
 ## Author
 

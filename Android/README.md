@@ -92,6 +92,11 @@ export JAVA_HOME="/Volumes/APPS/Applications/Android Studio.app/Contents/jbr/Con
 - **Adjust the refresh cadence**: edit `RefreshWorker.schedulePeriodic()` and
   the rate limiter in `AttendanceRepository.DEFAULT_MIN_INTERVAL_MILLIS`.
 
+## CI and releases
+
+- **CI**: GitHub Actions workflow [`.github/workflows/android.yml`](../.github/workflows/android.yml) builds the probe and assembles debug + release on every push/PR that touches `Android/`.
+- **Releases**: Tag the repo as `v*` (for example `v0.2.0`). The [release workflow](../.github/workflows/release.yml) uploads an unsigned release APK alongside the Mac zip. Install via `adb install` or Android Studio; you may need to allow installs from unknown sources.
+
 ## Troubleshooting
 
 | Symptom | Likely cause | Fix |
