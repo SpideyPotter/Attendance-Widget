@@ -27,6 +27,9 @@ coroutines = "1.9.0"
 # Encrypted prefs (still in alpha but used by every production app)
 securityCrypto = "1.1.0-alpha06"
 
+# Compile-only annotations pulled in by Tink for R8 release builds
+errorProneAnnotations = "2.28.0"
+
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
@@ -57,6 +60,7 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 
 # Encrypted preferences
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
+error-prone-annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorProneAnnotations" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
