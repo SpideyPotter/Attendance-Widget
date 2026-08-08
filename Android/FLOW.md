@@ -20,6 +20,7 @@ which is faster and far more robust.
 | 2 | POST | `https://maitri.bmu.edu.in/j_spring_security_check` | `application/x-www-form-urlencoded` body: `j_username=<full email>&j_password=<password>`. |
 | 3 | GET  | `https://maitri.bmu.edu.in/stu_getTermsOfStudentForCourceFile.json` | List of all enrolled semesters with the IDs the next call needs. |
 | 4 | GET  | `https://maitri.bmu.edu.in/stu_getSubjectOnChangeWithSemId1.json` | Subject + attendance JSON for one term. |
+| 5 | GET  | `https://maitri.bmu.edu.in/stu_getBetweenDatesTimetableForStudentSP.json` | Weekly (or date-range) student timetable sessions. |
 
 **No CSRF token, no captcha, no JS execution required.** The login page
 literally serves `<input type="hidden" id="validateCaptcha" value="false"/>`.
@@ -125,6 +126,45 @@ Response: JSON array, one entry per subject. Relevant fields:
 
 `percentage = presentCount * 100 / (presentCount + absentCount)` (guard against
 divide-by-zero when `total == 0`, e.g. for projects that haven't started).
+
+## 5 — Fetch weekly timetable
+
+The HTML shell at `stu_StudentTimeTable.htm` is empty until JS calls
+`getSectionWiseTimeTableContent()` in `scripts/student/studentTimeTable.js`.
+That hits:
+
+```
+GET https://maitri.bmu.edu.in/stu_getBetweenDatesTimetableForStudentSP.json
+       ?startDate=<portal date>
+       &endDate=<portal date>
+       &termId=<semesterId or 0>
+Cookie: JSESSIONID=...
+Accept: application/json
+X-Requested-With: XMLHttpRequest
+```
+
+**Date format:** `MMM d, yyyy` in en_US (e.g. `Aug 2, 2026`). The portal week
+filter uses **Sunday→Saturday**. Passing an empty `termId` yields an empty body;
+`0` (the page's hidden default) and the current `semesterId` both return data.
+
+Response: JSON array, one object per session. Relevant fields:
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `lectureDate` | String | May have a leading space; trim it (` Aug 03, 2026`) |
+| `lectureDay` | String | e.g. `Monday` |
+| `lectureStartTime` / `lectureEndTime` | String | `09:00 AM` |
+| `sessoionNo` | String/Number | **Upstream typo** — session number |
+| `subjectName` | String | Short course label shown in the portal table |
+| `chapterName` | String | Topic; may be URI-encoded; often `-` |
+| `classRoom` | String | Room / lab; often `-` |
+| `facultyName` | String | May contain doubled spaces |
+| `guestLecDescription` | String | Description column |
+
+The page also calls `stu_remarkBatchWiseDetailsForStudent.json` (batch remarks)
+and `stu_getBlockTeachingTimetableDetalsTimetableForStudent.json` (block/
+section schedule for some institutes). BMU (`BLM_MUNJAL`) uses the date-range
+JSON above for the weekly view.
 
 ## Cookie handling
 

@@ -10,9 +10,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,6 +31,7 @@ import kotlinx.coroutines.launch
 fun AccountView(
     viewModel: SettingsViewModel,
     onNavigateBack: () -> Unit,
+    onOpenLabels: () -> Unit,
     onCredentialsCleared: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
@@ -77,6 +78,17 @@ fun AccountView(
                     selected = themeId,
                     onSelect = viewModel::setAppTheme,
                 )
+            }
+
+            GroupedSectionHeader("Course labels")
+            GroupedSection {
+                Text(
+                    text = "Short names for courses in attendance and widgets. Stored only on this device.",
+                    color = AttendancePalette.secondaryForeground(),
+                )
+                TextButton(onClick = onOpenLabels) {
+                    Text("Edit labels")
+                }
             }
 
             GroupedSectionHeader("Maitri credentials")

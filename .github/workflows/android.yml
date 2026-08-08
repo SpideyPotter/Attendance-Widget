@@ -48,7 +48,21 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
+      # Default setup-android only installs tools + platform-tools; Gradle still needs
+      # the API 36 platform and build-tools for compileSdk 36.
+      - name: Install Android SDK platform and build-tools
+        run: |
+          yes | sdkmanager "platforms;android-36" "build-tools;36.0.0" >/dev/null || \
+            yes | sdkmanager "platforms;android-36" "build-tools;35.0.1" >/dev/null
+
       - name: Assemble debug and release
         run: |
           chmod +x gradlew
           ./gradlew :app:assembleDebug :app:assembleRelease --no-daemon
+
+      - name: Upload release APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bmu-attendance-android-release
+          path: Android/app/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error

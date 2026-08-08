@@ -39,34 +39,99 @@ class MaitriClient(
      */
     suspend fun fetchAttendance(creds: Credentials): AttendanceSnapshot =
         withContext(Dispatchers.IO) {
-            if (!creds.username.contains('@')) throw MaitriError.UsernameNotEmail
-            if (creds.password.isBlank()) throw MaitriError.InvalidCredentials
-
-            // Each call uses its own ephemeral cookie jar.
-            val callJar = InMemoryCookieJar()
-            val client = httpClient.newBuilder().cookieJar(callJar).build()
-
-            try {
-                seedSession(client)
-                authenticate(client, creds)
-                val terms = fetchTerms(client)
-                val current = terms.maxByOrNull { it.semesterId } ?: throw MaitriError.NoTerms
-                val subjects = fetchSubjects(client, current)
-                AttendanceSnapshot(
-                    termName = current.name,
-                    termSemesterId = current.semesterId,
-                    subjects = subjects,
-                    fetchedAtMillis = System.currentTimeMillis(),
-                )
-            } catch (e: MaitriError) {
-                throw e
-            } catch (e: IOException) {
-                throw MaitriError.Network(e)
-            } catch (e: IllegalStateException) {
-                // E.g. malformed JSON — surface as a portal error so we don't crash.
-                throw MaitriError.Portal(e.message ?: "Portal returned unexpected data")
+            withAuthenticatedClient(creds) { client, current ->
+                buildAttendanceSnapshot(client, current)
             }
         }
+
+    /**
+     * Logs in and pulls the student timetable for [startDate]…[endDate]
+     * (portal labels like `Aug 2, 2026`). Defaults to the current Sun–Sat week.
+     */
+    suspend fun fetchTimetable(
+        creds: Credentials,
+        startDate: String? = null,
+        endDate: String? = null,
+    ): TimetableSnapshot =
+        withContext(Dispatchers.IO) {
+            val range = TimetableDateRange.currentWeek(startLabel = startDate, endLabel = endDate)
+            withAuthenticatedClient(creds) { client, current ->
+                buildTimetableSnapshot(client, current, range)
+            }
+        }
+
+    /**
+     * One login, then attendance + current-week timetable. Timetable failure
+     * does not fail the whole call — attendance still returns and timetable
+     * is null so callers can keep the previous cached week.
+     */
+    suspend fun fetchAttendanceAndTimetable(creds: Credentials): Pair<AttendanceSnapshot, TimetableSnapshot?> =
+        withContext(Dispatchers.IO) {
+            val range = TimetableDateRange.currentWeek()
+            withAuthenticatedClient(creds) { client, current ->
+                val attendance = buildAttendanceSnapshot(client, current)
+                val timetable = runCatching {
+                    buildTimetableSnapshot(client, current, range)
+                }.getOrNull()
+                attendance to timetable
+            }
+        }
+
+    private fun buildAttendanceSnapshot(client: OkHttpClient, current: Term): AttendanceSnapshot {
+        val subjects = fetchSubjects(client, current)
+        return AttendanceSnapshot(
+            termName = current.name,
+            termSemesterId = current.semesterId,
+            subjects = subjects,
+            fetchedAtMillis = System.currentTimeMillis(),
+        )
+    }
+
+    private fun buildTimetableSnapshot(
+        client: OkHttpClient,
+        current: Term,
+        range: TimetableDateRange,
+    ): TimetableSnapshot {
+        val sessions = fetchTimetableSessions(client, current, range.startLabel, range.endLabel)
+        return TimetableSnapshot(
+            termName = current.name,
+            termSemesterId = current.semesterId,
+            startDate = range.startLabel,
+            endDate = range.endLabel,
+            sessions = sessions,
+            fetchedAtMillis = System.currentTimeMillis(),
+        )
+    }
+
+    private fun <T> withAuthenticatedClient(
+        creds: Credentials,
+        work: (OkHttpClient, Term) -> T,
+    ): T {
+        if (!creds.username.contains('@')) throw MaitriError.UsernameNotEmail
+        if (creds.password.isBlank()) throw MaitriError.InvalidCredentials
+
+        // Each call uses its own ephemeral cookie jar.
+        val callJar = InMemoryCookieJar()
+        val client = httpClient.newBuilder().cookieJar(callJar).build()
+
+        try {
+            seedSession(client)
+            authenticate(client, creds)
+            val terms = fetchTerms(client)
+            val current = terms.maxByOrNull { it.semesterId } ?: throw MaitriError.NoTerms
+            return work(client, current)
+        } catch (e: MaitriError) {
+            throw e
+        } catch (e: IOException) {
+            throw MaitriError.Network(e)
+        } catch (e: org.json.JSONException) {
+            throw MaitriError.Portal(e.message ?: "Portal returned invalid JSON")
+        } catch (e: IllegalStateException) {
+            throw MaitriError.Portal(e.message ?: "Portal returned unexpected data")
+        } catch (e: Exception) {
+            throw MaitriError.Portal(e.message ?: e::class.java.simpleName)
+        }
+    }
 
     // ── Internal steps ──────────────────────────────────────────────────────
 
@@ -125,16 +190,69 @@ class MaitriClient(
         }.build()
         val json = fetchJson(client, url)
         val arr = JSONArray(json)
+        return buildList {
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                if (o.optString("subjectCategory") == "PROJECT") continue
+                add(
+                    Subject(
+                        code = o.optString("subjectCode", "?"),
+                        name = decodeHtmlEntities(o.optString("subject", "?")),
+                        present = o.optInt("presentCount", 0),
+                        absent = o.optInt("absentCount", 0),
+                        afterCapping = o.optDouble("afterCapping", 0.0),
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun fetchTimetableSessions(
+        client: OkHttpClient,
+        term: Term,
+        startDate: String,
+        endDate: String,
+    ): List<TimetableSession> {
+        val url = TIMETABLE_URL.toHttpUrl().newBuilder().apply {
+            addQueryParameter("startDate", startDate)
+            addQueryParameter("endDate", endDate)
+            addQueryParameter("termId", term.semesterId.toString())
+        }.build()
+        val json = fetchJson(client, url)
+        val arr = JSONArray(json)
         return List(arr.length()) { i ->
             val o = arr.getJSONObject(i)
-            Subject(
-                code = o.optString("subjectCode", "?"),
-                name = decodeHtmlEntities(o.optString("subject", "?")),
-                present = o.optInt("presentCount", 0),
-                absent = o.optInt("absentCount", 0),
-                afterCapping = o.optDouble("afterCapping", 0.0),
+            TimetableSession(
+                lectureDate = o.optString("lectureDate", "").trim(),
+                dateIso = o.optString("lectureDateWithoutFormat", ""),
+                lectureDay = o.optString("lectureDay", ""),
+                startTime = o.optString("lectureStartTime", ""),
+                endTime = o.optString("lectureEndTime", ""),
+                // Upstream typo — keep reading `sessoionNo`.
+                sessionNo = o.opt("sessoionNo")?.toString()?.takeIf { it != "null" }.orEmpty(),
+                subjectName = decodeHtmlEntities(o.optString("subjectName", "")),
+                topic = decodeUriComponent(o.optString("chapterName", "-")),
+                classRoom = o.optString("classRoom", "-"),
+                facultyName = collapseWhitespace(o.optString("facultyName", "")),
+                description = o.optString("guestLecDescription", "-"),
             )
         }
+    }
+
+    private fun collapseWhitespace(value: String): String =
+        value.split(Regex("\\s+")).filter { it.isNotEmpty() }.joinToString(" ")
+
+    private fun decodeUriComponent(value: String): String {
+        var current = value
+        repeat(2) {
+            val decoded = runCatching {
+                java.net.URLDecoder.decode(current, Charsets.UTF_8.name())
+            }.getOrDefault(current)
+            if (decoded == current) return@repeat
+            current = decoded
+        }
+        val normalized = decodeHtmlEntities(current)
+        return normalized.ifBlank { "-" }
     }
 
     private fun fetchJson(client: OkHttpClient, url: HttpUrl): String {
@@ -183,6 +301,7 @@ class MaitriClient(
         private const val LOGIN_CHECK_URL = "$BASE/j_spring_security_check"
         private const val TERMS_URL = "$BASE/stu_getTermsOfStudentForCourceFile.json"
         private const val SUBJECTS_URL = "$BASE/stu_getSubjectOnChangeWithSemId1.json"
+        private const val TIMETABLE_URL = "$BASE/stu_getBetweenDatesTimetableForStudentSP.json"
         private const val USER_AGENT =
             "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 " +
                 "(KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36"

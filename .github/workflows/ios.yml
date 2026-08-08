@@ -29,12 +29,22 @@ jobs:
     needs: attendance-core-tests
     steps:
       - uses: actions/checkout@v4
-      - name: Build app and widget
+      - name: Build iOS app and widget
         run: |
           xcodebuild \
             -project IOS/BmuAttendance.xcodeproj \
             -scheme BmuAttendance \
             -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Build native macOS app
+        run: |
+          xcodebuild \
+            -project IOS/BmuAttendance.xcodeproj \
+            -scheme BmuAttendanceMac \
+            -destination 'generic/platform=macOS' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             build

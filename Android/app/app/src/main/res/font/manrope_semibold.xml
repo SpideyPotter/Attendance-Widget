@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pin the variable Manrope face to SemiBold (wght 600). The TTF’s default named
+     instance is ExtraLight, which is why the widget looked thin before. -->
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto">
+    <font
+        app:fontStyle="normal"
+        app:fontWeight="600"
+        app:fontVariationSettings="'wght' 600"
+        app:font="@font/manrope" />
+</font-family>

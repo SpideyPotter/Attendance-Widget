@@ -13,30 +13,35 @@ import androidx.security.crypto.MasterKey
  * The encrypted file is named `bmu_credentials` and is excluded from
  * cloud/auto backup via `data_extraction_rules.xml`.
  *
- * If the Keystore can't unwrap the master key on this device (e.g. after a
- * factory reset, or a buggy OEM keystore migration), we fall back to plain
- * preferences so the app still works — but in that case we re-prompt for
- * credentials so the bad backing file is overwritten.
+ * If Keystore unwrap fails (factory reset, OEM migration), we wipe the prefs
+ * file and retry once. We never fall back to plaintext password storage.
  */
 class CredentialStore(context: Context) {
     private val appContext = context.applicationContext
-    private val prefs: SharedPreferences = createPrefs(appContext)
+    private val prefs: SharedPreferences? = createPrefs(appContext)
+
+    /** False when the device Keystore cannot host an encrypted prefs file. */
+    val isSecure: Boolean get() = prefs != null
 
     fun load(): Credentials? {
-        val u = prefs.getString(KEY_USERNAME, null) ?: return null
-        val p = prefs.getString(KEY_PASSWORD, null) ?: return null
+        val store = prefs ?: return null
+        val u = store.getString(KEY_USERNAME, null) ?: return null
+        val p = store.getString(KEY_PASSWORD, null) ?: return null
         return Credentials(u, p).takeIf { it.username.isNotBlank() && p.isNotBlank() }
     }
 
     fun save(creds: Credentials) {
-        prefs.edit()
+        val store = prefs ?: throw IllegalStateException(
+            "Secure credential storage is unavailable on this device.",
+        )
+        store.edit()
             .putString(KEY_USERNAME, creds.username.trim())
             .putString(KEY_PASSWORD, creds.password)
             .apply()
     }
 
     fun clear() {
-        prefs.edit().clear().apply()
+        prefs?.edit()?.clear()?.apply()
     }
 
     fun hasCredentials(): Boolean = load() != null
@@ -47,25 +52,32 @@ class CredentialStore(context: Context) {
         private const val KEY_USERNAME = "username"
         private const val KEY_PASSWORD = "password"
 
-        private fun createPrefs(context: Context): SharedPreferences {
+        private fun createPrefs(context: Context): SharedPreferences? {
             return try {
-                val masterKey = MasterKey.Builder(context)
-                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                    .build()
-                EncryptedSharedPreferences.create(
-                    context,
-                    FILE_NAME,
-                    masterKey,
-                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
-                )
-            } catch (e: Exception) {
-                Log.w(TAG, "Encrypted prefs unavailable, falling back to plain prefs.", e)
-                // Wipe the file so a stale ciphertext doesn't keep failing.
-                context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE)
-                    .edit().clear().apply()
-                context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE)
+                encryptedPrefs(context)
+            } catch (first: Exception) {
+                Log.w(TAG, "Encrypted prefs failed; wiping and retrying.", first)
+                runCatching { context.deleteSharedPreferences(FILE_NAME) }
+                try {
+                    encryptedPrefs(context)
+                } catch (second: Exception) {
+                    Log.e(TAG, "Encrypted credential storage unavailable.", second)
+                    null
+                }
             }
+        }
+
+        private fun encryptedPrefs(context: Context): SharedPreferences {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            return EncryptedSharedPreferences.create(
+                context,
+                FILE_NAME,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
         }
     }
 }

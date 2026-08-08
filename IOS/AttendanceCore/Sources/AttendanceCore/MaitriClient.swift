@@ -4,6 +4,46 @@ public final class MaitriClient: Sendable {
     public init() {}
 
     public func fetchAttendance(creds: Credentials) async throws -> AttendanceSnapshot {
+        try await withAuthenticatedTransport(creds: creds) { transport, current in
+            let subjects = try await transport.fetchSubjects(term: current)
+            return AttendanceSnapshot(
+                termName: current.name,
+                termSemesterId: current.semesterId,
+                subjects: subjects,
+                fetchedAtMillis: Int64(Date().timeIntervalSince1970 * 1000)
+            )
+        }
+    }
+
+    /// Fetches the student weekly timetable for the given date range (inclusive).
+    /// Defaults to the portal's current week (Sunday…Saturday).
+    public func fetchTimetable(
+        creds: Credentials,
+        startDate: Date? = nil,
+        endDate: Date? = nil
+    ) async throws -> TimetableSnapshot {
+        let range = TimetableDateRange.currentWeek(start: startDate, end: endDate)
+        return try await withAuthenticatedTransport(creds: creds) { transport, current in
+            let sessions = try await transport.fetchTimetableSessions(
+                term: current,
+                startDate: range.startLabel,
+                endDate: range.endLabel
+            )
+            return TimetableSnapshot(
+                termName: current.name,
+                termSemesterId: current.semesterId,
+                startDate: range.startLabel,
+                endDate: range.endLabel,
+                sessions: sessions,
+                fetchedAtMillis: Int64(Date().timeIntervalSince1970 * 1000)
+            )
+        }
+    }
+
+    private func withAuthenticatedTransport<T: Sendable>(
+        creds: Credentials,
+        _ work: (MaitriTransport, Term) async throws -> T
+    ) async throws -> T {
         guard creds.username.contains("@") else { throw MaitriError.usernameNotEmail }
         guard !creds.password.isEmpty else { throw MaitriError.invalidCredentials }
 
@@ -18,13 +58,7 @@ public final class MaitriClient: Sendable {
             guard let current = terms.max(by: { $0.semesterId < $1.semesterId }) else {
                 throw MaitriError.noTerms
             }
-            let subjects = try await transport.fetchSubjects(term: current)
-            return AttendanceSnapshot(
-                termName: current.name,
-                termSemesterId: current.semesterId,
-                subjects: subjects,
-                fetchedAtMillis: Int64(Date().timeIntervalSince1970 * 1000)
-            )
+            return try await work(transport, current)
         } catch let error as MaitriError {
             throw error
         } catch let error as URLError {
@@ -140,6 +174,64 @@ private struct MaitriTransport {
                 afterCapping: object["afterCapping"] as? Double ?? 0
             )
         }
+    }
+
+    func fetchTimetableSessions(term: Term, startDate: String, endDate: String) async throws -> [TimetableSession] {
+        var components = URLComponents(
+            url: Self.base.appendingPathComponent("stu_getBetweenDatesTimetableForStudentSP.json"),
+            resolvingAgainstBaseURL: false
+        )!
+        components.queryItems = [
+            URLQueryItem(name: "startDate", value: startDate),
+            URLQueryItem(name: "endDate", value: endDate),
+            // Portal hidden field defaults to "0"; semesterId also works. Prefer the
+            // current term so multi-term accounts stay scoped like attendance.
+            URLQueryItem(name: "termId", value: String(term.semesterId)),
+        ]
+        let data = try await jsonData(for: components.url!)
+        let array = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
+        return array.map { object in
+            TimetableSession(
+                lectureDate: (object["lectureDate"] as? String ?? "").trimmingCharacters(in: .whitespaces),
+                lectureDay: object["lectureDay"] as? String ?? "",
+                startTime: object["lectureStartTime"] as? String ?? "",
+                endTime: object["lectureEndTime"] as? String ?? "",
+                // Upstream typo — keep reading `sessoionNo`.
+                sessionNo: stringValue(object["sessoionNo"]),
+                subjectName: decodeHtmlEntities(object["subjectName"] as? String ?? ""),
+                topic: decodeURIComponent(object["chapterName"] as? String ?? "-"),
+                classRoom: object["classRoom"] as? String ?? "-",
+                facultyName: collapseWhitespace(object["facultyName"] as? String ?? ""),
+                description: object["guestLecDescription"] as? String ?? "-"
+            )
+        }
+    }
+
+    private func stringValue(_ value: Any?) -> String {
+        switch value {
+        case let text as String:
+            return text
+        case let number as NSNumber:
+            return number.stringValue
+        default:
+            return ""
+        }
+    }
+
+    private func collapseWhitespace(_ value: String) -> String {
+        value
+            .split(whereSeparator: { $0.isWhitespace })
+            .joined(separator: " ")
+    }
+
+    private func decodeURIComponent(_ value: String) -> String {
+        var current = value
+        // Portal sometimes double-encodes topic names; decode a couple of times.
+        for _ in 0..<2 {
+            guard let decoded = current.removingPercentEncoding, decoded != current else { break }
+            current = decoded
+        }
+        return decodeHtmlEntities(current.isEmpty ? "-" : current)
     }
 
     private func jsonData(for url: URL) async throws -> Data {

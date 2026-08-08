@@ -30,7 +30,9 @@ struct LabelsView: View {
                             Text("Current: \(row.currentLabel)")
                                 .font(.caption)
                             TextField("Custom label", text: draftBinding(for: row.id))
+                                #if os(iOS)
                                 .textInputAutocapitalization(.characters)
+                                #endif
                                 .autocorrectionDisabled()
                             HStack {
                                 Button("Save") {

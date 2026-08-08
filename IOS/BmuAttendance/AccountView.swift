@@ -15,8 +15,10 @@ struct AccountView: View {
             Section("Maitri credentials") {
                 TextField("Full email", text: $viewModel.username)
                     .textContentType(.username)
+                    #if os(iOS)
                     .keyboardType(.emailAddress)
                     .textInputAutocapitalization(.never)
+                    #endif
                     .autocorrectionDisabled()
 
                 HStack {

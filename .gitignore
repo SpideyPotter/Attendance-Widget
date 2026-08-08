@@ -26,6 +26,9 @@ config.ini
 credentials.json
 .env
 
+# Local probe dumps
+tmp/
+
 # Scratch
 Untitled
 

@@ -85,6 +85,55 @@ data class AttendanceSnapshot(
         get() = if (totalDelivered == 0) 0.0 else totalPresent * 100.0 / totalDelivered
 }
 
+/** One scheduled class session from the student timetable. */
+data class TimetableSession(
+    val lectureDate: String,
+    /** Portal ISO date `yyyy-MM-dd` from `lectureDateWithoutFormat` — prefer for filtering. */
+    val dateIso: String,
+    val lectureDay: String,
+    val startTime: String,
+    val endTime: String,
+    val sessionNo: String,
+    val subjectName: String,
+    val topic: String,
+    val classRoom: String,
+    val facultyName: String,
+    val description: String,
+) {
+    val id: String
+        get() = "$dateIso|$startTime|$endTime|$subjectName|$sessionNo"
+}
+
+/** Weekly (or custom-range) timetable snapshot. */
+data class TimetableSnapshot(
+    val termName: String,
+    val termSemesterId: Int,
+    val startDate: String,
+    val endDate: String,
+    val sessions: List<TimetableSession>,
+    val fetchedAtMillis: Long,
+) {
+    /** Sessions grouped by lecture date, preserving portal order. */
+    val sessionsByDate: List<DaySessions>
+        get() {
+            val order = linkedMapOf<String, MutableList<TimetableSession>>()
+            val days = mutableMapOf<String, String>()
+            for (session in sessions) {
+                days.putIfAbsent(session.lectureDate, session.lectureDay)
+                order.getOrPut(session.lectureDate) { mutableListOf() }.add(session)
+            }
+            return order.map { (date, list) ->
+                DaySessions(date = date, day = days[date].orEmpty(), sessions = list)
+            }
+        }
+}
+
+data class DaySessions(
+    val date: String,
+    val day: String,
+    val sessions: List<TimetableSession>,
+)
+
 /** User-supplied Maitri credentials. */
 data class Credentials(
     val username: String,

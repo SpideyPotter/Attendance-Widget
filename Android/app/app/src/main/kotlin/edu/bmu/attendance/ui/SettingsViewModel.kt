@@ -5,14 +5,15 @@ import edu.bmu.attendance.data.AttendanceRepository
 import edu.bmu.attendance.data.AttendanceSnapshot
 import edu.bmu.attendance.data.Credentials
 import edu.bmu.attendance.data.MaitriError
-import edu.bmu.attendance.data.SnapshotStore
 import edu.bmu.attendance.data.Subject
 import edu.bmu.attendance.data.SubjectAliasStore
 import edu.bmu.attendance.data.SubjectAliasStoreError
 import edu.bmu.attendance.data.ThemeStore
+import edu.bmu.attendance.data.TimetableSnapshot
 import edu.bmu.attendance.ui.theme.AppThemeId
 import edu.bmu.attendance.widget.AttendanceWidget
 import edu.bmu.attendance.widget.CompactAttendanceWidget
+import edu.bmu.attendance.widget.TransparentAttendanceWidget
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -32,6 +33,7 @@ data class SettingsState(
     val status: SettingsStatus = SettingsStatus.IDLE,
     val statusText: String = "Enter your Maitri credentials to refresh the widget.",
     val lastSnapshot: AttendanceSnapshot? = null,
+    val lastTimetable: TimetableSnapshot? = null,
     val hasSavedCredentials: Boolean = false,
 ) {
     val isBusy: Boolean get() = status == SettingsStatus.BUSY
@@ -41,7 +43,6 @@ class SettingsViewModel(context: Context) {
     private val appContext = context.applicationContext
     private val repo = AttendanceRepository.get(appContext)
     private val credentialStore = edu.bmu.attendance.data.CredentialStore(appContext)
-    private val snapshotStore = SnapshotStore(appContext)
     private val themeStore = ThemeStore.get(appContext)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
@@ -57,12 +58,14 @@ class SettingsViewModel(context: Context) {
         val hasSavedCredentials = credentialStore.hasCredentials()
         val creds = credentialStore.load()
         val snapshot = repo.cachedSnapshot
+        val timetable = repo.cachedTimetable
         _state.update {
             it.copy(
                 username = creds?.username.orEmpty(),
                 password = creds?.password.orEmpty(),
                 hasSavedCredentials = hasSavedCredentials,
                 lastSnapshot = snapshot,
+                lastTimetable = timetable,
                 status = if (hasSavedCredentials && snapshot != null) SettingsStatus.OK else SettingsStatus.IDLE,
                 statusText = if (hasSavedCredentials && snapshot != null) {
                     "Attendance is ready. Refresh anytime from the home screen."
@@ -97,9 +100,75 @@ class SettingsViewModel(context: Context) {
             }
             return
         }
+        if (!credentialStore.isSecure) {
+            _state.update {
+                it.copy(
+                    status = SettingsStatus.FAILED,
+                    statusText = "This device can't store credentials securely. Try restarting or updating Android.",
+                )
+            }
+            return
+        }
         _state.update { it.copy(status = SettingsStatus.BUSY, statusText = "Saving and refreshing…") }
-        credentialStore.save(creds)
-        performRefresh(force = true, successPrefix = "Saved")
+        val previous = credentialStore.load()
+        try {
+            credentialStore.save(creds)
+        } catch (_: IllegalStateException) {
+            _state.update {
+                it.copy(
+                    status = SettingsStatus.FAILED,
+                    statusText = "Could not save credentials securely on this device.",
+                )
+            }
+            return
+        }
+        val result = repo.forceRefresh()
+        when (result) {
+            is AttendanceRepository.RefreshResult.Success -> {
+                val snap = result.snapshot
+                val timetable = result.timetable
+                val sessionCount = timetable?.sessions?.size ?: 0
+                _state.update {
+                    it.copy(
+                        status = SettingsStatus.OK,
+                        hasSavedCredentials = true,
+                        statusText = "Saved · ${snap.termName} · " +
+                            "${snap.subjects.size} subjects · $sessionCount classes · " +
+                            "%.2f%%".format(snap.overallPercentage),
+                        lastSnapshot = snap,
+                        lastTimetable = timetable,
+                    )
+                }
+                reloadWidget()
+            }
+            is AttendanceRepository.RefreshResult.Failure -> {
+                // Don't leave a broken login as "signed in" — restore prior creds if any.
+                if (previous != null) {
+                    runCatching { credentialStore.save(previous) }
+                } else {
+                    credentialStore.clear()
+                }
+                _state.update {
+                    it.copy(
+                        status = SettingsStatus.FAILED,
+                        hasSavedCredentials = previous != null,
+                        statusText = humanise(result.error),
+                    )
+                }
+                reloadWidget()
+            }
+            AttendanceRepository.RefreshResult.MissingCredentials -> {
+                credentialStore.clear()
+                _state.update {
+                    it.copy(
+                        status = SettingsStatus.FAILED,
+                        hasSavedCredentials = false,
+                        statusText = "Could not save credentials.",
+                    )
+                }
+                reloadWidget()
+            }
+        }
     }
 
     suspend fun refreshFromHome() {
@@ -134,7 +203,7 @@ class SettingsViewModel(context: Context) {
 
     suspend fun clearCredentials() {
         credentialStore.clear()
-        snapshotStore.clear()
+        repo.clearCaches()
         _state.update {
             it.copy(
                 username = "",
@@ -143,6 +212,7 @@ class SettingsViewModel(context: Context) {
                 status = SettingsStatus.IDLE,
                 statusText = "Credentials cleared.",
                 lastSnapshot = null,
+                lastTimetable = null,
             )
         }
         reloadWidget()
@@ -158,13 +228,17 @@ class SettingsViewModel(context: Context) {
         when (result) {
             is AttendanceRepository.RefreshResult.Success -> {
                 val snap = result.snapshot
+                val timetable = result.timetable
+                val sessionCount = timetable?.sessions?.size ?: 0
                 _state.update {
                     it.copy(
                         status = SettingsStatus.OK,
                         hasSavedCredentials = true,
-                        statusText = "$successPrefix · ${snap.termName} · ${snap.subjects.size} subjects · " +
+                        statusText = "$successPrefix · ${snap.termName} · " +
+                            "${snap.subjects.size} subjects · $sessionCount classes · " +
                             "%.2f%%".format(snap.overallPercentage),
                         lastSnapshot = snap,
+                        lastTimetable = timetable,
                     )
                 }
                 reloadWidget()
@@ -187,6 +261,7 @@ class SettingsViewModel(context: Context) {
         scope.launch(Dispatchers.IO) {
             AttendanceWidget().updateAll(appContext)
             CompactAttendanceWidget().updateAll(appContext)
+            TransparentAttendanceWidget().updateAll(appContext)
         }
     }
 
@@ -194,7 +269,8 @@ class SettingsViewModel(context: Context) {
         is MaitriError.InvalidCredentials -> "Invalid username or password."
         is MaitriError.UsernameNotEmail -> "Username must be the full email (e.g. you@bmu.edu.in)."
         is MaitriError.NoTerms -> "Maitri returned no enrolled terms."
-        is MaitriError.Network -> "Network error: ${error.message}"
+        // MaitriError.Network already prefixes "Network error:".
+        is MaitriError.Network -> error.message ?: "Network error"
         is MaitriError.Portal -> "Portal error: ${error.message}"
         else -> error.message ?: "Unknown error"
     }
@@ -312,6 +388,7 @@ class LabelsViewModel(context: Context) {
         scope.launch(Dispatchers.IO) {
             AttendanceWidget().updateAll(appContext)
             CompactAttendanceWidget().updateAll(appContext)
+            TransparentAttendanceWidget().updateAll(appContext)
         }
     }
 }

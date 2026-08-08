@@ -109,10 +109,12 @@ public final class CredentialStore: Sendable {
         let directory = url.deletingLastPathComponent()
         try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
         try data.write(to: url, options: .atomic)
+        #if os(iOS)
         try fileManager.setAttributes(
             [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
             ofItemAtPath: url.path
         )
+        #endif
     }
 
     private func syncCredentialFlag(hasCredentials: Bool) {

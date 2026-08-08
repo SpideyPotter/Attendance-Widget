@@ -17,6 +17,7 @@ import edu.bmu.attendance.ui.AppRootView
 import edu.bmu.attendance.ui.theme.AppThemeSpec
 import edu.bmu.attendance.widget.AttendanceWidget
 import edu.bmu.attendance.widget.CompactAttendanceWidget
+import edu.bmu.attendance.widget.TransparentAttendanceWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -57,6 +58,7 @@ private fun RefreshHomeScreenWidgets() {
         withContext(Dispatchers.IO) {
             AttendanceWidget().updateAll(context)
             CompactAttendanceWidget().updateAll(context)
+            TransparentAttendanceWidget().updateAll(context)
         }
     }
 }

@@ -3,8 +3,10 @@
     <string name="app_name">BMU Attendance</string>
     <string name="widget_name">Attendance</string>
     <string name="widget_compact_name">Attendance Compact</string>
+    <string name="widget_transparent_name">Attendance %</string>
     <string name="widget_description">Your latest Maitri attendance, on the home screen.</string>
     <string name="widget_compact_description">A compact Maitri attendance summary.</string>
+    <string name="widget_transparent_description">Overall attendance percentage on a transparent background.</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Maitri credentials</string>

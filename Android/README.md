@@ -1,107 +1,81 @@
 # BMU Attendance — Android
 
-Native Android port of the attendance tracker, with a Jetpack **Glance**
-home-screen widget and a Compose settings screen.
+Native Android app for BMU Maitri attendance **and weekly timetable**, with
+Jetpack Glance home-screen widgets and a Compose UI (Today · Weekly · Attendance).
+
+## What you get
+
+- Sign in with your full Maitri email; credentials live in EncryptedSharedPreferences.
+- **Today / Weekly / Attendance** tabs; venue overrides when Maitri leaves room as `-`.
+- Home-screen widgets: full list, compact, and transparent overall %.
+- Background refresh ~every 15 minutes (WorkManager; network required).
+- PROJECT subjects are excluded from overall % (same as iOS).
 
 ## Layout
 
 ```
 Android/
 ├── README.md     ← you are here
-├── FLOW.md       ← reverse-engineered Maitri HTTP contract (read this first)
-├── probe/        ← standalone Kotlin/JVM Gradle probe used to verify the
-│                  HTTP flow before any Android code was written
-└── app/          ← Android Studio project (open this folder in Studio)
-    ├── settings.gradle.kts
-    ├── build.gradle.kts             ← top-level
-    ├── gradle/libs.versions.toml    ← single source of truth for versions
-    ├── gradlew, gradlew.bat
-    └── app/                         ← the actual Android module
-        ├── build.gradle.kts
-        ├── proguard-rules.pro
-        └── src/main/
-            ├── AndroidManifest.xml
-            ├── res/                 ← strings, theme, widget info, icon
-            └── kotlin/edu/bmu/attendance/
-                ├── BmuAttendanceApp.kt
-                ├── MainActivity.kt
-                ├── data/    ← MaitriClient, Models, CredentialStore,
-                │              SnapshotStore, AttendanceRepository
-                ├── ui/      ← SettingsScreen + ViewModel + theme
-                ├── widget/  ← AttendanceWidget (Glance) + receiver +
-                │              RefreshAction click handler
-                └── work/    ← RefreshWorker (periodic + one-shot)
+├── FLOW.md       ← Maitri HTTP contract
+├── probe/        ← JVM probe for the HTTP flow
+└── app/          ← open THIS folder in Android Studio
 ```
 
-## Architecture in one paragraph
+## Share with peers (sideload APK)
 
-The widget is a **read-only view of `SnapshotStore`**, never makes a network
-call itself. All fetching happens in `RefreshWorker` (WorkManager), which calls
-`AttendanceRepository.refresh()`, which in turn delegates to `MaitriClient`
-to perform the four-step Maitri flow described in `FLOW.md`. On success, the
-worker writes a fresh `AttendanceSnapshot` to `SnapshotStore` and asks Glance
-to re-render. The Settings screen uses the same repository to test credentials
-and force a refresh after save.
-
-Credentials live in `EncryptedSharedPreferences` (Android Keystore-backed) and
-are excluded from auto-backup via `data_extraction_rules.xml`.
-
-## Prerequisites
-
-- **Android Studio Hedgehog or newer** (we use AGP 8.10.0).
-  Bundled JBR satisfies the JDK 17 toolchain requirement.
-- **Android SDK with platform 36** (Android 16 / Baklava).
-  `local.properties` points at `/Volumes/APPS/Library` by default — adjust if
-  your SDK lives elsewhere.
-
-## Building from the command line
+From a machine with the Android SDK / Android Studio JDK:
 
 ```bash
 cd Android/app
-export JAVA_HOME="/Volumes/APPS/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+./gradlew :app:assembleRelease
+# → app/build/outputs/apk/release/app-release.apk
+```
+
+Install with `adb install -r app/build/outputs/apk/release/app-release.apk`, or send the
+APK and allow “Install unknown apps” on the phone.
+
+**Signing:** release uses an upload keystore when configured (`keystore.properties` or
+`ANDROID_UPLOAD_*` env vars). Otherwise it is **debug-signed** so the APK is always
+installable for campus sharing — not for Play Store. To keep one installable identity
+across rebuilds for peers, either always use the same debug keystore machine, or add a
+dedicated upload keystore under `Android/app/keystore.properties` (gitignored).
+
+Current version: **1.1.0** (`versionCode` 3).
+
+## Building (debug)
+
+```bash
+cd Android/app
 ./gradlew :app:assembleDebug
 # → app/build/outputs/apk/debug/app-debug.apk
 ```
 
-## Building from Android Studio
-
-1. Open Android Studio.
-2. **File → Open** → navigate to `Android/app` (NOT the outer `Android` folder).
-3. Wait for Gradle sync.
-4. Pick a device or AVD and hit Run.
+In Android Studio: **File → Open → `Android/app`**, sync, Run.
 
 ## First run
 
-1. The launcher icon opens **Settings**. Enter:
-   - Username: **full email** (e.g. `you@bmu.edu.in`) — Maitri rejects the bare
-     local part.
-   - Password.
-2. Tap **Save and refresh**. The status banner tells you whether the login and
-   first attendance fetch worked.
-3. Long-press the home screen → **Widgets** → **BMU Attendance** → drag onto
-   the home screen.
-4. The widget refreshes itself every ~15 minutes via WorkManager (constraints:
-   network connected). The repository also rate-limits actual network calls to
-   one per 10 minutes so multiple triggers don't hammer Maitri.
+1. Open the app → enter full email (`you@bmu.edu.in`) + password → **Save and continue**.
+   Credentials are only kept if login + attendance fetch succeed.
+2. Use Today / Weekly / Attendance; set classroom venues by tapping TBA/room on Weekly.
+3. Long-press home → Widgets → **Attendance**, **Attendance Compact**, or **Attendance %**.
 
-## Tips
+## Architecture (short)
 
-- **Force a refresh now**: tap the ↻ button in the widget header, or hit
-  *Save and refresh* in Settings.
-- **Forget my credentials**: bottom button on the Settings screen.
-- **Adjust the refresh cadence**: edit `RefreshWorker.schedulePeriodic()` and
-  the rate limiter in `AttendanceRepository.DEFAULT_MIN_INTERVAL_MILLIS`.
+Widgets only read cached snapshots. Network work runs in `RefreshWorker` /
+`AttendanceRepository` → `MaitriClient` (see `FLOW.md`). Timetable is fetched on the
+same login as attendance; if the timetable call fails, attendance still updates and the
+previous week cache is kept.
 
 ## CI and releases
 
-- **CI**: GitHub Actions workflow [`.github/workflows/android.yml`](../.github/workflows/android.yml) builds the probe and assembles debug + release on every push/PR that touches `Android/`.
-- **Releases**: Tag the repo as `v*` (for example `v1.0.1`) to build both Mac zip and `BmuAttendance-android-1.0.1.apk`. Version in `app/build.gradle.kts` should match the tag (without the `v`). For an older release that only has the Mac zip, run **Actions → Release → Run workflow** with that tag and **android_only** enabled. Install the APK via `adb install` or Android Studio; you may need to allow installs from unknown sources.
+- [`.github/workflows/android.yml`](../.github/workflows/android.yml) builds probe + debug/release APKs.
+- Tag `v*` (e.g. `v1.1.0`) for the [Release workflow](../.github/workflows/release.yml).
 
 ## Troubleshooting
 
-| Symptom | Likely cause | Fix |
-|---------|--------------|-----|
-| "Invalid username or password" right after a save | Username missing the `@bmu.edu.in` part | Re-enter as the full email |
-| Widget shows "No attendance yet — tap to refresh" indefinitely | Periodic worker hasn't fired yet, or network was unavailable | Tap the widget; it queues a one-shot worker |
-| Build error: "Gradle version too old" | New AGP version requires newer Gradle | Bump `gradle-wrapper.properties` per the error message |
-| Build error: "platform-XX not found" | Missing SDK platform | SDK Manager → install the platform AGP requests |
+| Symptom | Fix |
+|---------|-----|
+| Invalid username/password | Use the full `@bmu.edu.in` email |
+| Stuck on login after bad password | Expected — failed refresh does not unlock Home |
+| Widget empty | Open the app once, or tap refresh on the widget |
+| Secure storage unavailable | Rare OEM/Keystore issue; restart phone or update Android |

@@ -75,6 +75,7 @@ struct HomeView: View {
             }
             .navigationTitle("BMU Attendance")
             .toolbar {
+                #if os(iOS)
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink {
                         LabelsView(settingsViewModel: viewModel)
@@ -91,6 +92,24 @@ struct HomeView: View {
                     }
                     .accessibilityLabel("Account")
                 }
+                #else
+                ToolbarItem(placement: .automatic) {
+                    NavigationLink {
+                        LabelsView(settingsViewModel: viewModel)
+                    } label: {
+                        Image(systemName: "textformat.abc")
+                    }
+                    .accessibilityLabel("Labels")
+                }
+                ToolbarItem(placement: .automatic) {
+                    NavigationLink {
+                        AccountView(viewModel: viewModel)
+                    } label: {
+                        Image(systemName: "person.crop.circle")
+                    }
+                    .accessibilityLabel("Account")
+                }
+                #endif
             }
         }
     }

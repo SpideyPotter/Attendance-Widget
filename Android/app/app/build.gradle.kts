@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,8 +14,48 @@ android {
         applicationId = "edu.bmu.attendance"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.1.0"
+    }
+
+    signingConfigs {
+        val keystorePropertiesFile = rootProject.file("keystore.properties")
+        val keystoreProperties = Properties()
+        if (keystorePropertiesFile.exists()) {
+            keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+        }
+
+        val envStoreFile = System.getenv("ANDROID_UPLOAD_KEYSTORE_FILE")?.takeIf { it.isNotBlank() }
+        val envSigning =
+            envStoreFile != null &&
+                !System.getenv("ANDROID_UPLOAD_KEYSTORE_PASSWORD").isNullOrBlank() &&
+                !System.getenv("ANDROID_UPLOAD_KEY_ALIAS").isNullOrBlank() &&
+                !System.getenv("ANDROID_UPLOAD_KEY_PASSWORD").isNullOrBlank()
+
+        val propsStoreFile =
+            keystoreProperties.getProperty("storeFile")?.let { rootProject.file(it) }
+        val propsSigning =
+            propsStoreFile != null &&
+                propsStoreFile.isFile &&
+                !keystoreProperties.getProperty("storePassword").isNullOrBlank() &&
+                !keystoreProperties.getProperty("keyAlias").isNullOrBlank() &&
+                !keystoreProperties.getProperty("keyPassword").isNullOrBlank()
+
+        if (envSigning) {
+            create("upload") {
+                storeFile = file(envStoreFile!!)
+                storePassword = System.getenv("ANDROID_UPLOAD_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("ANDROID_UPLOAD_KEY_ALIAS")!!
+                keyPassword = System.getenv("ANDROID_UPLOAD_KEY_PASSWORD")
+            }
+        } else if (propsSigning) {
+            create("upload") {
+                storeFile = propsStoreFile
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")!!
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -24,6 +66,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            // Installable APK for CI/sideload when no upload keystore is configured.
+            signingConfig =
+                signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
         debug {
             // Keep debug symbols for stack traces and easier widget debugging.

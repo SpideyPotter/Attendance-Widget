@@ -86,6 +86,81 @@ final class AttendanceCoreTests: XCTestCase {
         XCTAssertEqual(reloaded.allAliases(), ["CSE3727": "AIEM"])
     }
 
+    func testTimetableFixtureParsesSessions() throws {
+        let sessions = try parseTimetable(from: loadFixture(named: "timetable"))
+        XCTAssertEqual(sessions.count, 4)
+        XCTAssertEqual(sessions[0].subjectName, "IDT")
+        XCTAssertEqual(sessions[0].lectureDate, "Aug 03, 2026")
+        XCTAssertEqual(sessions[0].lectureDay, "Monday")
+        XCTAssertEqual(sessions[0].startTime, "09:00 AM")
+        XCTAssertEqual(sessions[0].sessionNo, "5")
+        XCTAssertEqual(sessions[0].facultyName, "Mr. Digvijay Singh")
+    }
+
+    func testTimetableSnapshotGroupsByDate() {
+        let sessions = [
+            TimetableSession(
+                lectureDate: "Aug 03, 2026",
+                lectureDay: "Monday",
+                startTime: "09:00 AM",
+                endTime: "09:55 AM",
+                sessionNo: "5",
+                subjectName: "IDT",
+                topic: "-",
+                classRoom: "-",
+                facultyName: "Mr. Digvijay Singh",
+                description: "-"
+            ),
+            TimetableSession(
+                lectureDate: "Aug 03, 2026",
+                lectureDay: "Monday",
+                startTime: "10:00 AM",
+                endTime: "10:55 AM",
+                sessionNo: "4",
+                subjectName: "DCSS",
+                topic: "-",
+                classRoom: "-",
+                facultyName: "Mr. Kulbir Singh Lamba",
+                description: "-"
+            ),
+            TimetableSession(
+                lectureDate: "Aug 04, 2026",
+                lectureDay: "Tuesday",
+                startTime: "10:00 AM",
+                endTime: "10:55 AM",
+                sessionNo: "6",
+                subjectName: "AG. AI",
+                topic: "-",
+                classRoom: "-",
+                facultyName: "Prof. Pranshu Tiwari",
+                description: "-"
+            ),
+        ]
+        let snapshot = TimetableSnapshot(
+            termName: "VII",
+            termSemesterId: 7,
+            startDate: "Aug 2, 2026",
+            endDate: "Aug 8, 2026",
+            sessions: sessions,
+            fetchedAtMillis: 1
+        )
+        let grouped = snapshot.sessionsByDate
+        XCTAssertEqual(grouped.count, 2)
+        XCTAssertEqual(grouped[0].date, "Aug 03, 2026")
+        XCTAssertEqual(grouped[0].sessions.count, 2)
+        XCTAssertEqual(grouped[1].day, "Tuesday")
+    }
+
+    func testTimetableDateRangeFormatsPortalWeek() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let components = DateComponents(calendar: calendar, timeZone: calendar.timeZone, year: 2026, month: 8, day: 8)
+        let saturday = components.date!
+        let range = TimetableDateRange.currentWeek(now: saturday)
+        XCTAssertEqual(range.startLabel, "Aug 2, 2026")
+        XCTAssertEqual(range.endLabel, "Aug 8, 2026")
+    }
+
     private func makeSubject(
         name: String,
         present: Int = 0,
@@ -122,6 +197,35 @@ final class AttendanceCoreTests: XCTestCase {
                 present: object["presentCount"] as? Int ?? 0,
                 absent: object["absentCount"] as? Int ?? 0,
                 afterCapping: object["afterCapping"] as? Double ?? 0
+            )
+        }
+    }
+
+    private func parseTimetable(from data: Data) throws -> [TimetableSession] {
+        let array = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
+        return array.map { object in
+            let sessionNo: String
+            if let text = object["sessoionNo"] as? String {
+                sessionNo = text
+            } else if let number = object["sessoionNo"] as? NSNumber {
+                sessionNo = number.stringValue
+            } else {
+                sessionNo = ""
+            }
+            let faculty = (object["facultyName"] as? String ?? "")
+                .split(whereSeparator: { $0.isWhitespace })
+                .joined(separator: " ")
+            return TimetableSession(
+                lectureDate: (object["lectureDate"] as? String ?? "").trimmingCharacters(in: .whitespaces),
+                lectureDay: object["lectureDay"] as? String ?? "",
+                startTime: object["lectureStartTime"] as? String ?? "",
+                endTime: object["lectureEndTime"] as? String ?? "",
+                sessionNo: sessionNo,
+                subjectName: object["subjectName"] as? String ?? "",
+                topic: object["chapterName"] as? String ?? "-",
+                classRoom: object["classRoom"] as? String ?? "-",
+                facultyName: faculty,
+                description: object["guestLecDescription"] as? String ?? "-"
             )
         }
     }

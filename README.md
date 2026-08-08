@@ -15,20 +15,22 @@ Attendance for BML Munjal University students from the Maitri portal, with a hom
 | Platform | Status | How to get it |
 | --- | --- | --- |
 | iPhone (iOS 17+) | Supported | Build from source in Xcode. See [IOS/README.md](IOS/README.md). |
-| Apple Silicon Mac | Supported | Download the latest **macOS (Apple Silicon)** `.zip` from [GitHub Releases](https://github.com/SpideyPotter/Attendance-Widget/releases). The app is the same iOS build running on Mac. |
+| Apple Silicon Mac | Supported | Download the latest **macOS (Apple Silicon)** `.zip` from [GitHub Releases](https://github.com/SpideyPotter/Attendance-Widget/releases). This is a **native macOS** SwiftUI app (`BmuAttendanceMac`); the iPhone app and widget stay on iOS. |
 | Android | Supported | Build from source in Android Studio. See [Android/README.md](Android/README.md). |
 | CLI and SwiftBar | Legacy | See [docs/legacy-cli-swiftbar.md](docs/legacy-cli-swiftbar.md). |
 
-GitHub Releases ship an unsigned Mac zip built in CI without your signing credentials. Builds from Xcode on your Mac can use your Apple ID personal team for local install on your devices. iOS is not distributed as an installable package here; build from source in Xcode.
+GitHub Releases ship a **native macOS** `.app` inside the zip (bundle id `edu.bmu.attendance.mac`). iOS is not distributed as an installable package here; build the iPhone app from source in Xcode.
 
 ## Mac install from a release
 
 1. Download `BmuAttendance-macOS-apple-silicon.zip` from [Releases](https://github.com/SpideyPotter/Attendance-Widget/releases).
 2. Unzip and move `BmuAttendance.app` into Applications.
-3. CI-built releases are unsigned. macOS may block them on first open; use **Open** from the context menu, or run `xattr -dr com.apple.quarantine /Applications/BmuAttendance.app`.
-4. Sign in with your full Maitri email, refresh attendance, then add the **BMU Attendance** widget from the widget gallery.
+3. Open the app. If macOS blocks it (quarantine), use **Open** from the context menu, or run `xattr -dr com.apple.quarantine /Applications/BmuAttendance.app`.
+4. Sign in with your full Maitri email and refresh attendance.
 
-For a build signed with your Apple ID on your Mac, run `./scripts/package-macos-app.sh` in Xcode with your team selected on the app and widget targets.
+The **home-screen widget** ships with the **iOS** target only. On Mac you use the desktop app; use the iPhone build for the widget.
+
+To package locally, run `./scripts/package-macos-app.sh` (scheme **BmuAttendanceMac**) with Xcode signed in on the **BmuAttendanceMac** target.
 
 ## iPhone install
 
@@ -50,7 +52,7 @@ attendance.py        Legacy terminal script
 - Package tests: `cd IOS/AttendanceCore && swift test`
 - iOS CI runs on pushes and pull requests that touch `IOS/`
 - Android CI runs on pushes and pull requests that touch `Android/` (probe compile + Gradle assemble)
-- Tag a release as `v*` (for example `v1.0.1`) to publish the unsigned Mac zip **and** Android APK to GitHub Releases
+- Tag a release as `v*` (for example `v1.1.0`) to publish the unsigned Mac zip **and** Android APK to GitHub Releases. See [CHANGELOG.md](CHANGELOG.md).
 - To add an Android APK to an **existing** release (for example `v1.0.0` created before Android was in the repo): **Actions → Release → Run workflow**, set tag `v1.0.0`, leave **android_only** checked
 
 ## Author

@@ -16,6 +16,7 @@ import androidx.work.WorkerParameters
 import edu.bmu.attendance.data.AttendanceRepository
 import edu.bmu.attendance.widget.AttendanceWidget
 import edu.bmu.attendance.widget.CompactAttendanceWidget
+import edu.bmu.attendance.widget.TransparentAttendanceWidget
 import java.util.concurrent.TimeUnit
 
 class RefreshWorker(
@@ -34,15 +35,13 @@ class RefreshWorker(
 
         return when (refreshResult) {
             is AttendanceRepository.RefreshResult.Success -> {
-                AttendanceWidget().updateAll(applicationContext)
-                CompactAttendanceWidget().updateAll(applicationContext)
+                updateAllWidgets()
                 Log.i(TAG, "Refresh OK (network=${refreshResult.networkCallMade})")
                 Result.success()
             }
             is AttendanceRepository.RefreshResult.Failure -> {
                 Log.w(TAG, "Refresh failed: ${refreshResult.error.message}")
-                AttendanceWidget().updateAll(applicationContext)
-                CompactAttendanceWidget().updateAll(applicationContext)
+                updateAllWidgets()
                 // Network/portal errors → retry with backoff. Auth errors don't
                 // recover by retrying, so we mark them as success and let the
                 // widget show the stale data with the error visible.
@@ -53,11 +52,16 @@ class RefreshWorker(
                 }
             }
             AttendanceRepository.RefreshResult.MissingCredentials -> {
-                AttendanceWidget().updateAll(applicationContext)
-                CompactAttendanceWidget().updateAll(applicationContext)
+                updateAllWidgets()
                 Result.success()
             }
         }
+    }
+
+    private suspend fun updateAllWidgets() {
+        AttendanceWidget().updateAll(applicationContext)
+        CompactAttendanceWidget().updateAll(applicationContext)
+        TransparentAttendanceWidget().updateAll(applicationContext)
     }
 
     companion object {

@@ -5,6 +5,7 @@ import androidx.glance.appwidget.updateAll
 import edu.bmu.attendance.data.AttendanceRepository
 import edu.bmu.attendance.widget.AttendanceWidget
 import edu.bmu.attendance.widget.CompactAttendanceWidget
+import edu.bmu.attendance.widget.TransparentAttendanceWidget
 import edu.bmu.attendance.work.RefreshWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,7 @@ class BmuAttendanceApp : Application() {
         appScope.launch {
             AttendanceWidget().updateAll(this@BmuAttendanceApp)
             CompactAttendanceWidget().updateAll(this@BmuAttendanceApp)
+            TransparentAttendanceWidget().updateAll(this@BmuAttendanceApp)
         }
     }
 }
