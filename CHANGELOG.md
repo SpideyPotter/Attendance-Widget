@@ -2,6 +2,11 @@
 
 All notable releases of BMU Attendance are listed here.
 
+## [1.1.1] — 2026-08-08
+
+- Release CI: create `build/` before staging the Android APK
+- Release CI: ship unsigned macOS zip without requiring provisioning profiles
+
 ## [1.1.0] — 2026-08-08
 
 ### Android
