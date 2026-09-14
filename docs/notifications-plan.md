@@ -4,10 +4,11 @@ Local (on-device) notifications for BMU Attendance. No server push; everything i
 
 ## Goals
 
-1. **Class reminders** — alert before the next lecture so students can leave on time.
-2. **Low-attendance alerts** — warn when a subject (or overall %) drops under a configurable threshold.
-3. **User control** — opt-in, per-type toggles, lead time / threshold, and clear on logout.
-4. **No portal spam** — reuse existing refresh + caches; never add a separate polling loop for notifications alone.
+1. **Morning briefing** — first-of-day local notification listing today’s classes (Android).
+2. **Class reminders** — alert before the next lecture so students can leave on time.
+3. **Low-attendance alerts** — warn when a subject (or overall %) drops under a configurable threshold.
+4. **User control** — opt-in, per-type toggles, lead time / threshold, and clear on logout.
+5. **No portal spam** — reuse existing refresh + caches; never add a separate polling loop for notifications alone.
 
 ## Non-goals (v1)
 
@@ -21,6 +22,7 @@ Local (on-device) notifications for BMU Attendance. No server push; everything i
 
 | Type | Trigger | Content | Default |
 | --- | --- | --- | --- |
+| **Morning briefing (shipped first)** | Local alarm at configured time (default **7:00**) | Title + list of today’s classes (or “no classes”) | Off until enabled in Account |
 | Class reminder | `leadMinutes` before a cached session start | Subject label (+ room if known) | Off until user enables; lead **10** min |
 | Low attendance (subject) | After refresh, subject % &lt; threshold and previously ≥ threshold (or first time under) | Course label + percentage | Off; threshold **70** (matches palette red) |
 | Low attendance (overall) | Same edge detection on overall % | Overall % | Off; same threshold |
@@ -112,7 +114,14 @@ No cards in the hero/home path; keep this inside Account only.
 
 ## Implementation phases
 
-### Phase 1 — Android foundation
+### Phase 1 — Android morning briefing (implemented)
+
+1. `NotificationPrefsStore` + Account toggle for “Today’s classes”
+2. `TodayBriefingScheduler` / `TodayBriefingReceiver` (AlarmManager + boot reschedule)
+3. Body built from cached timetable via `TimetableQueries.sessionsForDate`
+4. Resync after refresh success and on logout cancel
+
+### Phase 1b — Android foundation (remaining)
 
 1. `NotificationPrefsStore` + Account UI toggles / pickers.
 2. Notification channels + runtime permission gate.

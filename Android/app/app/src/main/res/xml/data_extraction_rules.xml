@@ -6,6 +6,7 @@
         <exclude domain="sharedpref" path="bmu_snapshot.xml" />
         <exclude domain="sharedpref" path="bmu_timetable.xml" />
         <exclude domain="sharedpref" path="bmu_attendance_theme.xml" />
+        <exclude domain="sharedpref" path="bmu_notifications.xml" />
         <exclude domain="file" path="venue_overrides.json" />
         <exclude domain="file" path="subject_aliases.json" />
     </cloud-backup>
@@ -14,6 +15,7 @@
         <exclude domain="sharedpref" path="bmu_snapshot.xml" />
         <exclude domain="sharedpref" path="bmu_timetable.xml" />
         <exclude domain="sharedpref" path="bmu_attendance_theme.xml" />
+        <exclude domain="sharedpref" path="bmu_notifications.xml" />
         <exclude domain="file" path="venue_overrides.json" />
         <exclude domain="file" path="subject_aliases.json" />
     </device-transfer>

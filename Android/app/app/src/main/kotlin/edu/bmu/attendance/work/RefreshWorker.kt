@@ -14,6 +14,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import edu.bmu.attendance.data.AttendanceRepository
+import edu.bmu.attendance.notify.TodayBriefingScheduler
 import edu.bmu.attendance.widget.AttendanceWidget
 import edu.bmu.attendance.widget.CompactAttendanceWidget
 import edu.bmu.attendance.widget.TransparentAttendanceWidget
@@ -36,6 +37,7 @@ class RefreshWorker(
         return when (refreshResult) {
             is AttendanceRepository.RefreshResult.Success -> {
                 updateAllWidgets()
+                TodayBriefingScheduler.resync(applicationContext)
                 Log.i(TAG, "Refresh OK (network=${refreshResult.networkCallMade})")
                 Result.success()
             }

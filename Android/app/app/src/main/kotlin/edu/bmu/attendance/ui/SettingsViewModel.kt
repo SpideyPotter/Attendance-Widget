@@ -8,7 +8,9 @@ import edu.bmu.attendance.data.MaitriError
 import edu.bmu.attendance.data.Subject
 import edu.bmu.attendance.data.SubjectAliasStore
 import edu.bmu.attendance.data.SubjectAliasStoreError
+import edu.bmu.attendance.data.NotificationPrefsStore
 import edu.bmu.attendance.data.ThemeStore
+import edu.bmu.attendance.notify.TodayBriefingScheduler
 import edu.bmu.attendance.data.TimetableSnapshot
 import edu.bmu.attendance.ui.theme.AppThemeId
 import edu.bmu.attendance.widget.AttendanceWidget
@@ -44,11 +46,13 @@ class SettingsViewModel(context: Context) {
     private val repo = AttendanceRepository.get(appContext)
     private val credentialStore = edu.bmu.attendance.data.CredentialStore(appContext)
     private val themeStore = ThemeStore.get(appContext)
+    private val notificationPrefs = NotificationPrefsStore.get(appContext)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val _state = MutableStateFlow(SettingsState())
     val state: StateFlow<SettingsState> = _state.asStateFlow()
     val themeId: StateFlow<AppThemeId> = themeStore.themeId
+    val morningBriefingEnabled: StateFlow<Boolean> = notificationPrefs.morningBriefingEnabled
 
     init {
         loadInitial()
@@ -204,6 +208,8 @@ class SettingsViewModel(context: Context) {
     suspend fun clearCredentials() {
         credentialStore.clear()
         repo.clearCaches()
+        notificationPrefs.clear()
+        TodayBriefingScheduler.cancel(appContext)
         _state.update {
             it.copy(
                 username = "",
@@ -222,6 +228,12 @@ class SettingsViewModel(context: Context) {
         themeStore.setTheme(themeId)
         reloadWidget()
     }
+
+    fun setMorningBriefingEnabled(enabled: Boolean) {
+        notificationPrefs.setMorningBriefingEnabled(enabled)
+        TodayBriefingScheduler.resync(appContext)
+    }
+
 
     private suspend fun performRefresh(force: Boolean, successPrefix: String) {
         val result = if (force) repo.forceRefresh() else repo.refresh()

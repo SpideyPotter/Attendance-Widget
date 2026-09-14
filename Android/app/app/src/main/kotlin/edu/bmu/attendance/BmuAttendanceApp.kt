@@ -3,6 +3,8 @@ package edu.bmu.attendance
 import android.app.Application
 import androidx.glance.appwidget.updateAll
 import edu.bmu.attendance.data.AttendanceRepository
+import edu.bmu.attendance.notify.NotificationChannels
+import edu.bmu.attendance.notify.TodayBriefingScheduler
 import edu.bmu.attendance.widget.AttendanceWidget
 import edu.bmu.attendance.widget.CompactAttendanceWidget
 import edu.bmu.attendance.widget.TransparentAttendanceWidget
@@ -20,6 +22,9 @@ class BmuAttendanceApp : Application() {
         // Eagerly construct the repository (which warms EncryptedSharedPreferences,
         // which can be slow on first launch).
         AttendanceRepository.get(this)
+
+        NotificationChannels.ensureCreated(this)
+        TodayBriefingScheduler.resync(this)
 
         // Schedule the periodic refresh; safe to call repeatedly because
         // WorkManager dedupes by unique-name (see RefreshWorker).

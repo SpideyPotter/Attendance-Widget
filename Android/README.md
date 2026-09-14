@@ -10,6 +10,7 @@ Jetpack Glance home-screen widgets and a Compose UI (Today · Weekly · Attendan
 - Home-screen widgets: full list, compact, and transparent overall %.
 - Background refresh ~every 15 minutes (WorkManager; network required).
 - PROJECT subjects are excluded from overall % (same as iOS).
+- Optional morning notification listing today’s classes (Account → Notifications).
 
 ## Layout
 
