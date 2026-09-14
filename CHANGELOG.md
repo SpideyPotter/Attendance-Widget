@@ -1,3 +1,8 @@
+## [Unreleased]
+
+### Android
+- Morning “today’s classes” local notification (opt-in in Account; default 7:00 AM)
+
 # Changelog
 
 All notable releases of BMU Attendance are listed here.

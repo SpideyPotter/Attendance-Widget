@@ -28,3 +28,6 @@
 -keep class * extends androidx.work.Worker { *; }
 -keep class * extends androidx.work.ListenableWorker { *; }
 -keep class * extends androidx.work.CoroutineWorker { *; }
+
+# Local notification receivers / schedulers.
+-keep class edu.bmu.attendance.notify.** { *; }
