@@ -41,7 +41,7 @@ installable for campus sharing — not for Play Store. To keep one installable i
 across rebuilds for peers, either always use the same debug keystore machine, or add a
 dedicated upload keystore under `Android/app/keystore.properties` (gitignored).
 
-Current version: **1.1.1** (`versionCode` 4).
+Current version: **1.1.2** (`versionCode` 5).
 
 ## Building (debug)
 
