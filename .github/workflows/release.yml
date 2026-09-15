@@ -69,6 +69,15 @@ jobs:
           java-version: 17
 
       - uses: android-actions/setup-android@v3
+        with:
+          # The legacy "tools" package was removed from Google's SDK repo;
+          # installing it makes setup-android fail with "Failed to find package 'tools'".
+          packages: platform-tools
+
+      - name: Install Android SDK platform and build-tools
+        run: |
+          yes | sdkmanager "platforms;android-36" "build-tools;36.0.0" >/dev/null || \
+            yes | sdkmanager "platforms;android-36" "build-tools;35.0.1" >/dev/null
 
       - name: Build unsigned release APK
         run: |
