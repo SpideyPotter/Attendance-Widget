@@ -37,6 +37,12 @@ Response sets `JSESSIONID` (HttpOnly, Path=/). Carry this cookie through every
 subsequent request. The redirect chain ends at `/login.htm;jsessionid=<id>` —
 this is normal Spring URL-rewrite fallback.
 
+**Cleartext redirect:** as of 2026-09 the portal's HTTPS responses often
+`Location:` to `http://maitri.bmu.edu.in/...`. OkHttp follows that hop, so the
+Android app must allow cleartext **only** for `maitri.bmu.edu.in` via
+`res/xml/network_security_config.xml`. Without it, refresh fails with
+`CLEARTEXT communication to maitri.bmu.edu.in not permitted by network security policy`.
+
 ### 2 — Authenticate
 
 ```

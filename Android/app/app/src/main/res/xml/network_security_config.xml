@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Maitri's reverse proxy answers HTTPS then 302s to http://maitri.bmu.edu.in/...
+  Android 9+ blocks that cleartext hop unless we allow it for this host only.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">maitri.bmu.edu.in</domain>
+    </domain-config>
+</network-security-config>

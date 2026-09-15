@@ -2,6 +2,11 @@
 
 All notable releases of BMU Attendance are listed here.
 
+## [1.1.3] — 2026-09-15
+
+### Android
+- Allow cleartext to `maitri.bmu.edu.in` so refresh works when the portal 302s HTTPS→HTTP (fixes `CLEARTEXT communication … not permitted`)
+
 ## [1.1.2] — 2026-09-14
 
 ### Android
